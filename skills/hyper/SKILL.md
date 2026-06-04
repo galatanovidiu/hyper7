@@ -64,9 +64,9 @@ Timestamps use `YYYY-MM-DDTHH:MM:SS`.
 
 Call the state probe once at session start:
 
-    node "<skill-base-dir>/../hyper-build/scripts/state.mjs"
+    node "<skill-base-dir>/scripts/state.mjs"
 
-`<skill-base-dir>` is the path printed at skill load as "Base directory for this skill". The probe lives in the sibling `hyper-build` skill folder — `install-hyper` symlinks all Hyper skills side by side, so `../hyper-build/scripts/state.mjs` resolves from any sibling skill base. Parse the JSON output; route all subsequent decisions (state root, active loops, next loop id) from its fields. Do not re-scan folders or re-read individual `loop.md` frontmatter for routing or id allocation.
+`<skill-base-dir>` is the path printed at skill load as "Base directory for this skill". Parse the JSON output; route all subsequent decisions (state root, active loops, next loop id) from its fields. Do not re-scan folders or re-read individual `loop.md` frontmatter for routing or id allocation.
 
 Get the current UTC timestamp in `YYYY-MM-DDTHH:MM:SS` format.
 
@@ -126,8 +126,8 @@ Resolve each capability call in this order: exact preferred skill name, then any
 |---|---|---|---|
 | pressure-test | required | `grill-me` | stress-tests a plan or decision tree |
 | decision-proxy | conditional (delegated authority, if a user gate or route checkpoint would otherwise stop) | `hyper-team` | gets a specialist decision or critique from another agent/model |
-| code-review | conditional (verify, if code changes) | `hyper-code-review` | reviews code changes and returns a verdict with findings |
-| docs | conditional (verify, if user-facing surface changed) | `hyper-docs` | updates user-facing documentation for the changed surface |
+| code-review | conditional (verify, if code changes) | local `reference/change-review.md` | review the loop's diff per `reference/change-review.md` and return a verdict with findings |
+| docs | conditional (verify, if user-facing surface changed) | local `reference/docs.md` | follow the loop docs instruction in `reference/docs.md` to update user-facing documentation for the changed surface |
 | cross-model-review | suggested | `hyper-team` | gets critique from another model |
 
 Required values: `required` (block at loop start if missing) · `conditional (<phase>, if <trigger>)` (evaluated only at that phase) · `suggested` (never blocks).
@@ -300,16 +300,16 @@ Phase 4 starts on one of two triggers: **(a)** Phase 3 ends with the closing han
 
 **Pre-cycle abandonment** (trigger b). If the user explicitly abandons the loop before any cycle has run (alignment never cleared, or the user gives up mid-Phase-2), run the "On user-explicit close without verify" branch below in full. No `Intent: stop` + `Next: close` cycle is required because no cycles exist; the abandonment itself replaces the closing handoff pair. When that branch's step 5 writes the close-without-verify-only lines, use `Close-without-verify reason: abandoned before alignment cleared` (or the user's exact reason) and `Unfinished items: <what was being aligned at the moment of abandonment>`. The branch's step 1 dirty-state check still runs — the default `Dirty or unvalidated state: none` is a real value, not a placeholder, and is the expected reading on a loop that ran no cycles.
 
-**Detect research-only loops.** Before running the checks, run `git diff` against the loop's starting commit (or `git status` if no starting commit is tracked) inside the project. If no code changes are present, the loop is research-only for verify purposes: skip the code-review capability call and treat the Tests check accordingly (see below).
+**Detect research-only loops.** Before running the checks, run `git diff` against the loop's starting commit (or `git status` if no starting commit is tracked) inside the project. If no code changes are present, the loop is research-only for verify purposes: skip the code review and treat the Tests check accordingly (see below).
 
 **Run all four checks:**
 
 1. **Tests.** Re-run the project's test suite. Capture the exact command, exit code, and a decisive excerpt. Link the full log under `## Relevant artifacts` if large. Legal alternates when no test run applies: `n/a — no test suite in project` or `n/a — research-only loop, no code changes`.
-2. **Code review.** Invoke the code-review capability from the registry above on the loop's full diff. Record the verdict (`pass | needs-changes | blocked`) and top findings. On a research-only loop (empty diff), record `n/a — research-only loop, no code changes` and skip the capability call.
-3. **Docs.** If the loop changed user-facing surface (CLI, UI, API, public functions, behavior advertised to users), invoke the docs capability from the registry above. Otherwise record `n/a — no user-facing surface change`.
+2. **Code review.** Review the loop's full diff per `reference/change-review.md`. Record the verdict (`pass | needs-changes | blocked`) and top findings. On a research-only loop (empty diff), record `n/a — research-only loop, no code changes` and skip the review.
+3. **Docs.** If the loop changed user-facing surface (CLI, UI, API, public functions, behavior advertised to users), follow the local docs instruction in `reference/docs.md` to update user-facing documentation directly. Otherwise record `n/a — no user-facing surface change`.
 4. **Definition of done.** Walk every line in `## Definition of done`. Record each line as `met | not met | n/a`, backed by concrete evidence. Evidence cites a source the file already contains, in one of these shapes: `file:line` (or `file:line-line`), `test: <test name>`, `artifact: <relative path under Relevant artifacts>`, `Decisions: <verbatim first 8 words of the decision title>`, `Evidence digest: <verbatim digest bullet>`, or `Cycle N <field>: <verbatim excerpt>`. The cited entry must already exist in `loop.md` at verify time; do not invent evidence inline.
 
-Missing-skill handling matches Phase 2: if required code review is missing on a loop with code changes, or required docs support is missing when the loop changed user-facing surface, "continue without it" is **not** a valid choice. Offer install, swap for this loop, or stop.
+Phase 4 has no missing-skill case. Code review and docs are both local instructions in `reference/` (`change-review.md` and `docs.md`), always present.
 
 **Record verification** using the `## Verified outcomes` entry shape in `templates/loop.md`. Allocate `Verify N` as max(existing `Verify N`) + 1; verify entries are append-only and never rewritten, even after remediation. The overall verify `Result` is `pass | partial | fail`. The verify entry's `Follow-up` field (legal values: `stop and close | remediation cycle to fix <what>`) is the verify-level analogue of the cycle's `Next` — it is a separate field with separate values, so cycle and verify logs stay grep-distinguishable. On the first real verify entry, replace `_No verify runs yet._`. Whenever verification runs, set `Verify link` in `## Outcome` to `Verify N` for the latest verify entry. Leave `Close summary: Not finished yet.` until the loop actually closes.
 
@@ -418,5 +418,5 @@ Cross-cutting invariants. Phase-specific behavior lives in the phase sections ab
 - **User-claim verification.** When the user states something is broken, wrong, missing, or different from what the agent believes, test the claim before disagreeing. Run the command, read the file, inspect the state. If the test result contradicts the user, do not dismiss. Report: the exact command run, the files read with paths and line ranges, what the agent observed. Then ask: "Is the test you wanted me to do different from what I did?" Never tell the user their claim is wrong without showing the test work and inviting correction. This rule overrides any anchoring from a prior pressure-test or grilling pass — surviving a grilling does not make a plan or belief immune to evidence the user can see now.
 - Done loops are never reopened. If continued work is needed, create a new loop and reference the closed one in `## Starting point`.
 - No `status: done` without a passing verify entry, unless the user explicitly closes scope without verify.
-- When a durable learning surfaces during a loop, record it in `.hyper/memory/` per the contract in `../hyper-memory/reference/memory.md`, writing the entry inline rather than invoking the `hyper-memory` skill.
+- When a durable learning surfaces during a loop, record it in `.hyper/memory/` per the contract in `reference/memory.md`, writing the entry inline rather than invoking the `hyper-memory` skill.
 - Legal values inlined throughout this skill mirror `templates/loop.md`. If either changes, update the other.

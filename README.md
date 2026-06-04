@@ -49,6 +49,11 @@ mkdir -p ~/.claude/skills
 ln -s ~/hyper/skills/* ~/.claude/skills/
 ```
 
+Each skill is self-contained, so you can install any single skill on its own
+(for example via skills.sh: `npx skills add <skill>`) or install the whole
+suite together. Every shipped skill has the shared content it needs vendored
+in — there is nothing to build at install time.
+
 Other agents can point at `skills/hyper/SKILL.md` or
 `skills/hyper-build/SKILL.md` and use the matching workflow.
 
@@ -165,7 +170,6 @@ Tracked lanes:
 - `feature`: `intake -> spec -> technical-plan -> execution-plan -> implement -> verify -> docs -> done`
 - `quick`: `intake -> technical-plan -> implement -> verify -> done`
 - `research`: `intake -> research -> done`
-- `code-review`: `review -> done`
 
 `bugfix: true` is orthogonal:
 
@@ -279,11 +283,8 @@ User-facing skill names:
 - `hyper-backlog`
 - `hyper-handoff`
 - `hyper-retro`
-- `hyper-code-review`
 - `hyper-recipe`
 - `hyper-team`
-- `hyper-short-story`
-- `hyper-digest`
 - `hyper-memory`
 
 | Command                   | Use it for                                                              |
@@ -296,17 +297,14 @@ User-facing skill names:
 | `/hyper-backlog`          | Add, list, promote, or drop future ideas.                               |
 | `/hyper-handoff`          | Write a handoff when conversation context would be lost.                |
 | `/hyper-retro`            | Record lessons after a task or session.                                 |
-| `/hyper-code-review`      | Review an arbitrary diff, branch, PR, or staged change.                 |
 | `/hyper-recipe`           | Manage reusable project-local procedures in `.hyper/recipes/`.          |
 | `/hyper-team`             | Ask another AI agent CLI for a second opinion.                          |
-| `/hyper-short-story`      | Rewrite the previous response as a short, plain-language narrative.     |
-| `/hyper-digest`           | Toggle scannable digest formatting (BLUF + sections) for responses.     |
 | `/hyper-memory`           | Save, list, search, or drop project learnings in `.hyper/memory/`.      |
 
-Internal skills such as `hyper-intake`, `hyper-spec`, `hyper-technical-plan`,
-`hyper-execution-plan`, `hyper-execution-plan-review`, `hyper-research`,
-`hyper-implement`, `hyper-worker`, `hyper-verify`, and `hyper-docs` are
-invoked by `hyper-build`; you usually do not call them directly.
+The phase workflow (intake, spec, technical-plan, execution-plan, research,
+implement, worker, verify, docs) is not made of separate skills. It lives as
+`reference/phase-*.md` files inside `hyper-build`, which reads the matching
+file when it routes a phase. You do not call the phases directly.
 
 ## Working On Hyper
 
@@ -315,8 +313,18 @@ If you are editing this repo rather than using Hyper in another project:
 - `AGENTS.md` contains the rules for contributors and agents editing Hyper.
 - [`docs/maintaining-hyper.md`](docs/maintaining-hyper.md) describes the
   maintenance checks and fragile contracts to watch.
-- `node scripts/validate-hyper.mjs` runs a lightweight structural validation
-  of the skill suite.
+
+### Build / contributing
+
+Shared content (the state probe, state-root helper, reference docs, templates)
+is authored once in the repo-root `shared/` directory and vendored into each
+consuming skill by `scripts/sync-shared.mjs`. The copies under `skills/**` are
+generated — edit the `shared/` source, then run:
+
+```bash
+node scripts/sync-shared.mjs          # propagate shared content into skills
+node scripts/sync-shared.mjs --check  # CI drift guard; exits non-zero on drift
+```
 
 ## Design Choices
 

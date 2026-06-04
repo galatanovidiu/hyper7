@@ -6,6 +6,41 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and Hyper follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 While Hyper is pre-1.0, the skill contract may change between minor versions.
 
+## [Unreleased]
+
+### Changed
+
+- **Self-contained, individually installable skills.** Every shipped skill is
+  now self-contained: no skill references files in a sibling skill. Shared
+  content (the state probe, state-root helper, reference docs, templates) is
+  authored once in the repo-root `shared/` directory and vendored into each
+  consuming skill by a new build step, `scripts/sync-shared.mjs`, per
+  `shared/sync.manifest.json`. `node scripts/sync-shared.mjs --check` guards
+  drift in CI. The "no build for consumers" promise holds — installed skills
+  are pure markdown — so each skill can be installed standalone (for example
+  via skills.sh) or as the full suite.
+- **Phase skills folded into `hyper-build`.** The ten phase skills (intake,
+  spec, technical-plan, execution-plan, execution-plan-review, research,
+  implement, worker, verify, docs) are no longer separate skills. The phase
+  workflow now lives as `reference/phase-*.md` reference files inside
+  `hyper-build`, which reads the matching file when it routes a phase.
+
+### Removed
+
+- The `hyper-short-story` and `hyper-digest` skills.
+- The `hyper-code-review` skill. It was a state-machine wrapper around review
+  knowledge that no caller used: both `hyper-build`'s verify phase and `hyper`'s
+  loop verify already compute the diff and own their own result file. Review is
+  now a local reference, `shared/reference/change-review.md`, vendored into
+  `hyper-build` and `hyper`. The unused standalone `scope: code-review` /
+  `phase: review` tracked-task path is removed with it: the `code-review` scope,
+  the `review` phase, and the `review -> done` flow are gone from the data model,
+  gate ownership, archive contract, and dashboard rules. User-facing skills drop
+  from ten to nine.
+- The old test and validation scripts (`scripts/validate-hyper.mjs` and the
+  related test harness). A new test/validation suite is to be defined later;
+  `scripts/sync-shared.mjs --check` is the current machine-checkable guard.
+
 ## [0.2.1] - 2026-06-04
 
 ### Fixed

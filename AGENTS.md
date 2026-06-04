@@ -41,16 +41,15 @@ skills/<name>/
 
 This layout is normative for the Hyper suite. Bundled companion skills may use a different bundled-file structure when their own workflow needs it.
 
-Hyper installs as a suite. In user projects that means copying or symlinking the full `skills/` folder together, never one Hyper skill alone. The repo-local `install-hyper` helper exists only for the development loop; it is not part of the distributed Hyper package. Because the suite ships together, a Hyper skill may reference files in a sibling Hyper skill (e.g. `skills/hyper-task/SKILL.md` pointing at `skills/hyper-build/reference/data-model.md`) when that keeps a single source of truth. The constraint is suite-internal: don't reference anything outside `skills/`.
+Each shipped skill is self-contained and individually installable. A shipped skill must not reference files in a sibling skill — no `../<other-skill>/` paths. Shared content (the state probe, state-root helper, reference docs, templates) is authored once in the repo-root `shared/` directory and vendored into each consuming skill by `scripts/sync-shared.mjs` at build time. The unit of distribution is the individual skill: each skill installs standalone (for example via skills.sh `npx skills add`), and the whole suite can still be installed together. The repo-local `install-hyper` helper exists only for the development loop; it is not part of the distributed Hyper package.
 
-## User-facing vs internal skills
+## User-facing skills
 
-Hyper has two kinds of skills:
+There are nine standalone user-facing skills: `hyper`, `hyper-build`, `hyper-task`, `hyper-backlog`, `hyper-handoff`, `hyper-retro`, `hyper-recipe`, `hyper-team`, `hyper-memory`. No `user-invocable` field (defaults to `true`). They show up in the slash-command menu, triggered either by `/<name>` or by description auto-activation.
 
-- **User-facing** — `hyper`, `hyper-build`, `hyper-task`, `hyper-backlog`, `hyper-handoff`, `hyper-retro`, `hyper-code-review`, `hyper-recipe`, `hyper-team`, `hyper-short-story`. No `user-invocable` field (defaults to `true`). Show up in the slash-command menu. Triggered either by `/<name>` or by description auto-activation. `hyper-code-review` is dual-mode: user-invocable for standalone reviews on arbitrary diffs (creating a `scope: code-review` task), and also invoked internally by `hyper-verify` as its review pass on in-flight Hyper tasks. `hyper-recipe` is standalone and manages `.hyper/recipes/` without entering the task workflow. `hyper` is the main adaptive workflow and manages `.hyper/loops/` without entering the phase workflow; `hyper-build` is the phased workflow and manages `.hyper/tasks/`. `hyper-short-story` is standalone and does not read or write Hyper task state; it rewrites the previous assistant message as a short narrative and exits.
-- **Internal** — `hyper-intake`, `hyper-spec`, `hyper-technical-plan`, `hyper-execution-plan`, `hyper-execution-plan-review`, `hyper-research`, `hyper-implement`, `hyper-verify`, `hyper-docs`, `hyper-worker`. Set `user-invocable: false`. The phase skills (`intake`, `spec`, `technical-plan`, `execution-plan`, `research`, `implement`, `verify`, `docs`) are invoked only by `hyper-build`. The execution-plan-review skill (`hyper-execution-plan-review`) is invoked only by `hyper-execution-plan`. The worker skill (`hyper-worker`) is invoked only by `hyper-implement` during feature-scope orchestration. None appear in the `/` menu, which keeps the user's surface clean.
+There are no separate internal or phase skills. The phase workflow lives as reference files inside `hyper-build`: `reference/phase-intake.md`, `phase-spec.md`, `phase-technical-plan.md`, `phase-execution-plan.md`, `phase-execution-plan-review.md`, `phase-research.md`, `phase-implement.md`, `phase-worker.md`, `phase-verify.md`, `phase-docs.md`. `hyper-build` reads the matching file when it routes a phase and applies the verdict the file returns.
 
-When adding a new skill, decide which category it belongs to and set the frontmatter accordingly. Phase-style skills and dispatched-worker skills that only make sense as part of a larger flow go `user-invocable: false`.
+`hyper-recipe` is standalone and manages `.hyper/recipes/` without entering the task workflow. `hyper` is the main adaptive workflow and manages `.hyper/loops/` without entering the phase workflow; `hyper-build` is the phased workflow and manages `.hyper/tasks/`. Code review is not a skill: both `hyper-build`'s verify phase and `hyper`'s loop verify review the diff per their local `reference/change-review.md`.
 
 ## Agent Skills spec constraints
 
@@ -71,20 +70,34 @@ The bundled `hyper-team` companion skill is intentionally not forced into the sa
 
 ## Cross-references between Hyper skills
 
-When a Hyper skill needs to hand off to another Hyper skill, the body says:
+There are two distinct handoff shapes. Do not confuse them.
+
+Phase handoffs inside the build workflow are local reference reads, not skill invocations. When `hyper-build` routes a phase, the body says:
+
+> Read `reference/phase-<phase>.md` and follow it.
+
+The phase files live inside `hyper-build`; reading one is a bundled-file read, not a host skill-invocation.
+
+Genuine standalone-skill handoffs still invoke by name:
 
 > Invoke the `hyper-<name>` skill.
 
-Not `Follow skills/hyper-<name>/SKILL.md`. Skills are invoked by name (host's skill-invocation mechanism), not by file path. The convention is stated once in the `hyper-build` skill's intro.
+Not `Follow skills/hyper-<name>/SKILL.md`. Standalone skills are invoked by name (the host's skill-invocation mechanism), not by file path. This applies to `hyper` reaching `hyper-team` or `grill-me` capabilities.
 
 ## Portability
 
 Hyper targets **any** agent that supports the Agent Skills spec, not just Claude Code. This constrains edits:
 
 - **No Claude-Code-only tool references** in skill bodies as a general rule (`Skill` tool, Agent tool, Task tool, etc.). Use neutral language: "invoke the X skill", "read the file".
-  - **One documented exception:** `hyper-implement` names Claude Code's Task tool (`subagent_type: general-purpose`) for dispatching `hyper-worker` sub-agents during feature-scope orchestration, because the Agent Skills spec has no neutral primitive for spawning a sub-agent. On agents without equivalent sub-agent-dispatch support, feature-scope orchestration will need a fallback path — treat that as a known limitation, not an invitation to sprinkle Claude-specific tool names elsewhere.
+  - **Sub-agent dispatch:** the implement phase (`skills/hyper-build/reference/phase-implement.md`) dispatches worker sub-agents pointed at `reference/phase-worker.md` during feature-scope orchestration. It uses neutral "sub-agent" wording and relies on the host agent's sub-agent mechanism (on Claude Code, the Task tool) to spawn them, because the Agent Skills spec has no neutral primitive for spawning a sub-agent. On agents without equivalent sub-agent-dispatch support, feature-scope orchestration will need a fallback path — treat that as a known limitation, not an invitation to sprinkle Claude-specific tool names into skill bodies.
 - **No CLI.** This was a deliberate departure from Hyper4. Don't re-introduce a `hyper` command or any executable. State is markdown on disk, edited directly.
-- **No plugin.json / no `.claude-plugin/`.** Distribution is by copying the `skills/` folder.
+- **No plugin.json / no `.claude-plugin/`.** Distribution is per self-contained skill — each installs standalone via skills.sh (`npx skills add`) — or as the full suite by copying the `skills/` folder. Still no CLI.
+
+## Build process (shared core)
+
+The repo-root `shared/` directory holds the canonical shared files, authored once: the state probe, the state-root helper, reference docs, and templates. `scripts/sync-shared.mjs` vendors byte-identical copies into each consuming skill per `shared/sync.manifest.json`. The synced copies under `skills/**` are generated — never hand-edit them. Edit the `shared/` source and re-run the sync. CI runs `node scripts/sync-shared.mjs --check` to guard drift.
+
+The "no build for consumers" promise still holds: installed skills are pure markdown with everything they need vendored in. The build is a maintainer-only concern; users never run it.
 
 ## When adding or renaming a skill
 
@@ -96,11 +109,19 @@ Hyper targets **any** agent that supports the Agent Skills spec, not just Claude
 
 ## When touching the data model
 
-`skills/hyper-build/reference/data-model.md` is authoritative for Hyper-owned `.hyper/` layout, `task.md` frontmatter, subtask file shape, and artifact filenames. Companion-skill subtrees such as `.hyper/team/` are documented by their owning skill/docs. Any change there needs matching updates in `README.md`, the Hyper skills that read/write those artifacts (`hyper-build`, `hyper-task`, `hyper-intake`, `hyper-spec`, `hyper-technical-plan`, `hyper-execution-plan`, `hyper-execution-plan-review`, `hyper-research`, `hyper-implement`, `hyper-worker`, `hyper-verify`, `hyper-docs`, `hyper-backlog`, `hyper-handoff`, `hyper-retro`, `hyper-recipe`, `hyper`), and the relevant templates.
+`skills/hyper-build/reference/data-model.md` is authoritative for Hyper-owned `.hyper/` layout, `task.md` frontmatter, subtask file shape, and artifact filenames. It is synced from `shared/reference/data-model.md` — edit the canonical source there and re-run `node scripts/sync-shared.mjs`; do not hand-edit the skill copies. Companion-skill subtrees such as `.hyper/team/` are documented by their owning skill/docs. Any change there needs matching updates in `README.md`, the phase reference files in `hyper-build` (`reference/phase-*.md`), the Hyper skills that read/write those artifacts (`hyper-build`, `hyper-task`, `hyper-backlog`, `hyper-handoff`, `hyper-retro`, `hyper-recipe`, `hyper`), and the relevant templates.
 
 ## Testing changes locally
 
-There's no test suite — the "tests" are exercising Hyper end-to-end on a real project. Rough loop:
+The one machine-checkable guard is the sync drift check:
+
+```bash
+node scripts/sync-shared.mjs --check
+```
+
+It exits non-zero if any synced copy under `skills/**` drifts from its `shared/` source. CI runs the same command. A broader test/validation suite is to be defined later.
+
+Beyond that, the "tests" are exercising Hyper end-to-end on a real project. Rough loop:
 
 1. `ln -sfn $(pwd)/skills/hyper ~/.claude/skills/hyper` (and siblings) — symlink, so edits take effect live.
    If you add a new skill folder, create its link explicitly. Re-running a past wildcard link command does not update already-linked directories by itself.
@@ -122,7 +143,7 @@ When an edit grows the skill set — more files, more filename variants, more en
 - **`allowed-tools` without a reason.** It tightens what the host agent can do mid-skill. Only add when genuinely needed.
 - **Prose that restates the frontmatter.** If the body starts with "This skill does X and Y…", delete it — the description already said so.
 - **Deep reference chains.** `SKILL.md` → `advanced.md` → `details.md` breaks progressive disclosure (agents tend to partial-read nested references).
-- **Referencing files outside `skills/`.** Suite-internal cross-references between Hyper skills are fine (see "What lives where"); references to repo files outside `skills/` are not — they don't ship to users.
+- **Cross-skill references.** Shipped skills must be self-contained. A skill referencing files in a sibling skill (`../<other-skill>/` paths) is forbidden — the build vendors shared content from `shared/` into each skill instead of cross-referencing. References to repo files outside `skills/` are also forbidden — they don't ship to users.
 
 ## References
 

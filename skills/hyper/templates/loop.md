@@ -194,7 +194,7 @@ N is append-only: allocate as max(existing Verify N) + 1. Never rewrite a prior 
   **Tests:** <command> → <exit code, decisive excerpt — link full log under Relevant artifacts if large>
   Legal alternates when no test run applies: `n/a — no test suite in project` | `n/a — research-only loop, no code changes`.
 
-  **Code review:** <code-review skill verdict — pass | needs-changes | blocked — and top findings>
+  **Code review:** <review verdict — pass | needs-changes | blocked — and top findings>
   Legal alternate when the loop produced no code changes: `n/a — research-only loop, no code changes`.
 
   **Docs:** <docs skill output summary, or `n/a — no user-facing surface change`>

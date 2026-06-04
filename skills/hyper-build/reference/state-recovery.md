@@ -28,7 +28,7 @@ Minimum viable frontmatter:
 id: T<N>
 title: <title>
 phase: <current phase or safest earlier phase>
-scope: <quick|feature|research|code-review|unknown>
+scope: <quick|feature|research|unknown>
 created: <YYYY-MM-DDTHH:MM:SS>
 bugfix: false
 awaiting: null
@@ -47,7 +47,7 @@ Valid explanations:
 
 Recovery:
 
-- if plan output is partial or suspect, re-run `hyper-execution-plan`
+- if plan output is partial or suspect, re-enter the execution-plan phase via hyper-build
 - if the task is really quick-scope, correct `scope` and continue
 - otherwise repair the missing subtask files before dispatching implement
 
