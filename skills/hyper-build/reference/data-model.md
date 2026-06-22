@@ -107,9 +107,10 @@ dashboard generation algorithm is owned by `hyper-build`.
 
 ## Internal vs user-facing skills
 
-Users invoke nine Hyper skills directly: `hyper`, `hyper-build`, `hyper-task`,
-`hyper-backlog`, `hyper-handoff`, `hyper-retro`, `hyper-recipe`, `hyper-team`,
-and `hyper-memory`.
+Users invoke ten Hyper skills directly: `hyper`, `hyper-light`, `hyper-build`,
+`hyper-task`, `hyper-backlog`, `hyper-handoff`, `hyper-retro`, `hyper-recipe`,
+`hyper-team`, and `hyper-memory`. `hyper-light` is the lightest tier: a
+single-session, no-ceremony workflow that keeps no `.hyper/` state.
 
 There are no separate internal phase skills. The phase workflow lives as
 `reference/phase-*.md` files inside `hyper-build`, which `hyper-build` reads
@@ -401,9 +402,11 @@ Loop frontmatter fields:
 Each loop combines:
 
 - **Living state** — goal, constraints, definition of done, task
-  understanding, existing code and findings, authority mode, loop plan,
-  current route, current focus, current bar, parts, part alignment, evidence
-  digest, relevant artifacts, handoff cues, and final outcome
+  understanding, existing code and findings, authority mode (with the
+  `Run: manual | auto` turn-driver axis), loop plan, current route, current
+  focus, current bar (machine-checkable when `Run: auto`), parts, part
+  alignment, evidence digest, relevant artifacts, handoff cues, and final
+  outcome
 - **Evidence history** — bar history, route shifts, decisions, starting point,
   and cycle log
 
@@ -420,6 +423,9 @@ For long loops, the intended read order is layered:
 - the loop starts with an alignment pass
 - `loop.md` is created immediately
 - `## Authority` records whether approval gates are interactive or delegated
+  (`Mode`) and whether the loop drives its own cycles (`Run: manual | auto`);
+  `Run: auto` requires a machine-checkable bar and follows
+  `skills/hyper/reference/autonomous-run.md`
 - `## Task understanding`, `## Existing code and findings`, and
   `## Loop plan` must be filled before any implementation cycle starts
 - `## Loop plan` carries `Status: awaiting approval | approved | needs rework`,

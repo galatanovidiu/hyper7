@@ -45,7 +45,7 @@ Each shipped skill is self-contained and individually installable. A shipped ski
 
 ## User-facing skills
 
-There are nine standalone user-facing skills: `hyper`, `hyper-build`, `hyper-task`, `hyper-backlog`, `hyper-handoff`, `hyper-retro`, `hyper-recipe`, `hyper-team`, `hyper-memory`. No `user-invocable` field (defaults to `true`). They show up in the slash-command menu, triggered either by `/<name>` or by description auto-activation.
+There are ten standalone user-facing skills: `hyper`, `hyper-light`, `hyper-build`, `hyper-task`, `hyper-backlog`, `hyper-handoff`, `hyper-retro`, `hyper-recipe`, `hyper-team`, `hyper-memory`. No `user-invocable` field (defaults to `true`). They show up in the slash-command menu, triggered either by `/<name>` or by description auto-activation.
 
 There are no separate internal or phase skills. The phase workflow lives as reference files inside `hyper-build`: `reference/phase-intake.md`, `phase-spec.md`, `phase-technical-plan.md`, `phase-execution-plan.md`, `phase-execution-plan-review.md`, `phase-research.md`, `phase-implement.md`, `phase-worker.md`, `phase-verify.md`, `phase-docs.md`. `hyper-build` reads the matching file when it routes a phase and applies the verdict the file returns.
 

@@ -4,7 +4,7 @@ This guide is for humans editing the Hyper repo itself.
 
 ## Skill inventory
 
-Nine standalone skills ship: `hyper`, `hyper-build`, `hyper-task`,
+Ten standalone skills ship: `hyper`, `hyper-light`, `hyper-build`, `hyper-task`,
 `hyper-backlog`, `hyper-handoff`, `hyper-retro`, `hyper-recipe`, `hyper-team`,
 `hyper-memory`. There are no separate phase
 skills. The phase workflow lives as `reference/phase-*.md` files inside
@@ -79,9 +79,13 @@ These surfaces are the easiest to drift:
 8. **`hyper` loop contract**
    - `skills/hyper/SKILL.md`
    - `skills/hyper/templates/loop.md`
+   - `skills/hyper/reference/autonomous-run.md` (the `Run: auto` engine:
+     `bar-check` verdict contract, checkpoint/stop-for-user precedence, and the
+     machine-checkable-bar gate; keep in sync with the `Run`/`bar-check`/auto-run
+     wording in `SKILL.md` and the `Run`/`Check:` fields in `templates/loop.md`)
    - `skills/hyper-build/reference/data-model.md`
    - README loop examples and wording
-   - hard gate stays intact: authority -> understanding -> code scan -> findings -> loop plan -> part-level approvals -> cycles
+   - hard gate stays intact: authority -> understanding -> code scan -> findings -> loop plan -> part-level approvals -> cycles; `Run: auto` adds a machine-checkable-bar precondition but never weakens this gate
 
 9. **State probe contract**
    - canonical source: `shared/scripts/state.mjs` and

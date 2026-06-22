@@ -8,6 +8,30 @@ While Hyper is pre-1.0, the skill contract may change between minor versions.
 
 ## [Unreleased]
 
+### Added
+
+- **`hyper-light` skill.** A new lightest-tier workflow for small,
+  single-session work: align on the goal and its done-conditions, work in
+  small evidence-backed moves, checkpoint only when the route drifts, and close
+  with an honest check. State lives in the conversation — no `.hyper/`
+  persistence, no parts, no approval gates — and the one safety rail (pause
+  before irreversible or outward-facing actions) is kept. Escalate to `hyper`
+  when work must persist, split into parts, or pass an approval gate; to
+  `hyper-build` when it is fully specified. Brings the user-facing skill count
+  to ten.
+- **Autonomous run engine (`Run: auto`) for `hyper`.** A new `Run: manual | auto`
+  axis in `## Authority`, independent of `Mode`. `Run: auto` makes a loop drive
+  its own cycles: after each cycle a separate, cheap `bar-check` evaluator — not
+  the agent doing the work — returns `continue | done | course-correct |
+  stop-for-user`, and the loop continues on its own until the bar is met or a stop
+  boundary fires. It requires a machine-checkable bar (every `## Definition of
+  done` line carries a `check:` predicate); the Phase 2 auto-run gate refuses
+  `auto` without one and falls back to `manual`. The stop-for-user boundary still
+  breaks the loop in every mode, and zoom-out checkpoints surface to the user in
+  `interactive` or are resolved by a proxy in `delegated`. Contract in
+  `skills/hyper/reference/autonomous-run.md`. Scoped to `hyper`; `hyper-light` is
+  unaffected.
+
 ### Changed
 
 - **Self-contained, individually installable skills.** Every shipped skill is
@@ -40,6 +64,17 @@ While Hyper is pre-1.0, the skill contract may change between minor versions.
 - The old test and validation scripts (`scripts/validate-hyper.mjs` and the
   related test harness). A new test/validation suite is to be defined later;
   `scripts/sync-shared.mjs --check` is the current machine-checkable guard.
+
+### Fixed
+
+- **State probe no longer flags a healthy "all loops done" project as broken.**
+  `shared/scripts/state.mjs` counted only *active* loops toward its
+  "successfully parsed" total while counting *all* loop folders as candidates, so
+  a project whose loops are all `done` (a normal resting state) exited non-zero
+  with a false "every candidate task/loop folder failed to parse" message. The
+  probe now counts every cleanly-parsed loop (`parsedCount`), matching how
+  done/archived tasks are already handled; a genuinely unparseable folder still
+  exits 2. Covered by `evals/harness/state-probe.test.mjs`.
 
 ## [0.2.1] - 2026-06-04
 

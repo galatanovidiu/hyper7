@@ -18,6 +18,14 @@ state. Workflow state lives in `.hyper/` inside your project.
 
 ## When To Use Which
 
+Three tiers, lightest to heaviest:
+
+- **`hyper-light`** — small, single-session work with no ceremony. State lives in the conversation: no persistence, no parts, no approval gate. Align, work in evidence-backed moves, close honestly. Quick fixes and contained changes.
+- **`hyper`** — adaptive work that must persist across sessions, split into tracked parts, or pass an approval gate. One persistent log of cycles, decisions, and route shifts in `.hyper/loops/`.
+- **`hyper-build`** — fully specified work where fixed phases fit (spec, plan, build, verify).
+
+The heavier two compared:
+
 | Use **`hyper`** when                                       | Use **`hyper-build`** when                                 |
 | ---------------------------------------------------------- | ---------------------------------------------------------- |
 | Destination known, but the route must evolve through evidence | Destination and route are both stable up front          |
@@ -26,7 +34,7 @@ state. Workflow state lives in `.hyper/` inside your project.
 | You want one persistent log of cycles, decisions, and route shifts | You want every artifact (spec, plan, subtasks) on disk |
 | Examples: investigation, prototype, tune-up, multi-session R&D | Examples: feature, refactor, non-trivial bugfix         |
 
-Skip both for tiny, obvious edits.
+Reach for `hyper-light` for small single-session work; skip all three for tiny, obvious edits.
 
 ## Install
 
@@ -108,6 +116,17 @@ definition of done, or non-negotiables would change; when destructive actions,
 security/privacy/legal risk, external side effects, or material cost appear;
 when public behavior would change outside the approved goal; when a loop would
 close without verify; or when proxy agents disagree.
+
+**Manual vs. auto runs.** Separately from who approves gates, `## Authority`
+`Run` controls who drives turns. `Run: manual` (default) runs one cycle, then
+hands back to you. `Run: auto` lets the loop drive its own cycles: a separate
+`bar-check` evaluator runs after each cycle and the loop keeps going until the
+bar is met or a stop boundary fires. Auto-run requires a **machine-checkable
+bar** — every definition-of-done line carries a `check:` predicate — and Hyper
+refuses to run auto without one. It still breaks to you at every stop-for-user
+trigger, and in interactive mode at every zoom-out checkpoint. Ask for it with
+"auto" or "keep going until done". See
+[`skills/hyper/reference/autonomous-run.md`](skills/hyper/reference/autonomous-run.md).
 
 ### Example
 
@@ -278,6 +297,7 @@ gotchas surface during work.
 User-facing skill names:
 
 - `hyper`
+- `hyper-light`
 - `hyper-build`
 - `hyper-task`
 - `hyper-backlog`
@@ -291,6 +311,7 @@ User-facing skill names:
 | ------------------------- | ----------------------------------------------------------------------- |
 | `/hyper <goal>`           | Start adaptive work.                                                    |
 | `/hyper L<N>`             | Resume a loop.                                                          |
+| `/hyper-light <goal>`     | Run a small single-session task with no ceremony.                       |
 | `/hyper-build <request>`  | Start phased work.                                                      |
 | `/hyper-build T<N>`       | Resume a task.                                                          |
 | `/hyper-task`             | List, create, defer, cancel, or inspect tasks.                          |
