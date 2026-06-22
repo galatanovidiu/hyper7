@@ -26,6 +26,8 @@ Not stated yet.
 
 ## Definition of done
 Not filled yet.
+<!-- Each line should carry a machine-checkable `— check: <predicate>` whose result lands in the transcript (e.g. `npm test exits 0`, `grep -rc "TODO(auth)" src == 0`, `GET /health → 200`, `dist/app.js exists`). A checkable bar is REQUIRED for `Run: auto` (see reference/autonomous-run.md) and recommended for `Run: manual`. -->
+<!-- Line shape: - <done condition> — check: <predicate> -->
 
 ## Task understanding
 Not filled yet.
@@ -36,6 +38,8 @@ Not filled yet.
 ## Authority
 Mode: interactive
 <!-- Legal values: interactive | delegated -->
+Run: manual
+<!-- Legal values: manual | auto. manual = one cycle then yield to the user (default). auto = the loop drives its own cycles per reference/autonomous-run.md; requires a machine-checkable bar. -->
 Delegated authority: none
 <!-- Shape: none | <standing authority the user granted, including boundaries> -->
 Decision proxies: none
@@ -79,6 +83,8 @@ Not filled yet.
 ## Current bar
 Not filled yet.
 <!-- Shape: the current stop condition or gate -->
+Check: n/a
+<!-- Machine-evaluable condition for the current state (a command + expected result, a count, or an observation). `n/a` is allowed for `Run: manual`; `Run: auto` requires a real predicate. See reference/autonomous-run.md. -->
 <!-- The next move lives in `## Handoff cues` `Next atomic move` (the canonical next-step field); the active part is read from `## Parts`. There is no separate Current focus section. -->
 
 ## Parts
