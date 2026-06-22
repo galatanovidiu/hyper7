@@ -268,6 +268,11 @@ function collectTaskFolders(stateRoot, dirAbs, kind, parseErrors) {
 function collectLoopFolders(stateRoot, dirAbs, parseErrors) {
   const active = [];
   const folderIds = [];
+  // Count loops whose loop.md parsed cleanly, regardless of status. A `done`
+  // loop is a successful parse, not a failure; the exit-code accounting needs
+  // this so a project with only finished loops is not mistaken for one whose
+  // folders all failed to parse.
+  let parsedCount = 0;
   const entries = readDirSafe(dirAbs);
   entries.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -304,6 +309,7 @@ function collectLoopFolders(stateRoot, dirAbs, parseErrors) {
     }
 
     const fm = parsed.data;
+    parsedCount += 1;
     // Folder name is canonical for id allocation; surface mismatches.
     const fmIdNum = extractNumericId(fm.id, "L");
     if (fmIdNum != null && fmIdNum !== folderId) {
@@ -324,7 +330,7 @@ function collectLoopFolders(stateRoot, dirAbs, parseErrors) {
     }
   }
 
-  return { active, folderIds };
+  return { active, folderIds, parsedCount };
 }
 
 function collectBacklog(stateRoot, parseErrors) {
@@ -499,11 +505,16 @@ function main() {
 
   process.stdout.write(`${JSON.stringify(output, null, 2)}\n`);
 
-  // Spec promise: exit non-zero when every candidate record failed to parse.
+  // Spec promise: exit non-zero when every candidate folder failed to parse.
   // A candidate is a folder under .hyper/tasks/, .hyper/archive/, or
   // .hyper/loops/ that matched the T<N>- or L<N>- prefix. Backlog parse
   // failures alone are not enough to fail the exit code — they're a softer
   // signal (heading drift, not a structural state issue).
+  //
+  // "Successfully parsed" means the folder's task.md/loop.md yielded valid
+  // frontmatter, regardless of phase or status. A `done` loop or archived
+  // task parsed fine; it is not a parse failure. Counting only active loops
+  // here would wrongly flag a project whose loops are all finished.
   const totalFolderCandidates =
     activeResult.folderIds.length +
     archivedResult.folderIds.length +
@@ -511,7 +522,7 @@ function main() {
   const successfulFolderRecords =
     activeResult.records.length +
     archivedResult.records.length +
-    loopResult.active.length;
+    loopResult.parsedCount;
   if (totalFolderCandidates > 0 && successfulFolderRecords === 0) {
     process.stderr.write(
       `hyper state probe: every candidate task/loop folder failed to parse (${totalFolderCandidates} candidates)\n`,
