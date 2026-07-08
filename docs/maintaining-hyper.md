@@ -2,46 +2,55 @@
 
 This guide is for humans editing the Hyper repo itself.
 
+## Skill inventory
+
+Ten standalone skills ship: `hyper`, `hyper-light`, `hyper-build`, `hyper-task`,
+`hyper-backlog`, `hyper-handoff`, `hyper-retro`, `hyper-recipe`, `hyper-team`,
+`hyper-memory`. There are no separate phase
+skills. The phase workflow lives as `reference/phase-*.md` files inside
+`hyper-build` (`phase-intake.md` … `phase-docs.md`, plus
+`phase-execution-plan-review.md` and `phase-worker.md`), which `hyper-build`
+reads when it routes a phase.
+
 ## Validate the suite locally
 
-Run:
+The one machine-checkable guard is the sync drift check:
 
 ```bash
-node scripts/validate-hyper.mjs
+node scripts/sync-shared.mjs --check
 ```
 
-The validator checks a small set of structural contracts:
+It exits non-zero if any synced copy under `skills/**` drifts from its
+`shared/` source. CI runs the same command. A broader structural test and
+validation suite is to be defined later.
 
-- shipped `skills/*/SKILL.md` files have parseable frontmatter
-- Hyper user-facing vs internal skill expectations match the shipped suite
-- internal Hyper skills keep `user-invocable: false`
-- referenced `templates/` and `reference/` files exist
-- named skill handoffs point to real shipped skills
-- README and the Hyper data model still describe the current skill inventory
-- `hyper` keeps its loop frontmatter, required sections, authority and
-  approval-gate sections, resume buckets, intent vocabulary, and
-  no-task-artifact boundary aligned across the skill, template, README, and
-  data model
-
-It is intentionally lightweight. Keep doing real `/hyper` dry runs in a
-throwaway project for workflow changes.
+Keep doing real `/hyper` and `/hyper-build` dry runs in a throwaway project for
+workflow changes.
 
 ## Most fragile contracts
 
 These surfaces are the easiest to drift:
 
-1. **Skill inventory and counts**
-   - README
-   - `skills/hyper-build/reference/data-model.md`
-   - `scripts/validate-hyper.mjs`
+1. **Shared core and the sync build**
+   - `shared/` (canonical source: state probe, state-root helper, reference
+     docs, templates)
+   - `shared/sync.manifest.json`
+   - `scripts/sync-shared.mjs` (and `--check`)
+   - never hand-edit synced copies under `skills/**`; edit `shared/` and re-sync
 
-2. **Gate protocol and transitions**
+2. **Skill inventory and counts**
+   - README
+   - `shared/reference/data-model.md` (synced to skill copies)
+   - this file's skill-inventory section
+
+3. **Gate protocol and transitions**
    - `skills/hyper-build/SKILL.md`
-   - phase skills that set gates
+   - phase reference files that set gates
+     (`skills/hyper-build/reference/phase-*.md`)
    - `skills/hyper-build/reference/gates.md`
    - README example flows
 
-3. **Phase and artifact naming**
+4. **Phase and artifact naming**
    - `intake`, `spec`, `technical-plan`, `execution-plan`, `research`
    - `01-intake.md`
    - `02-spec.md`
@@ -49,40 +58,51 @@ These surfaces are the easiest to drift:
    - `04-execution-plan.md`
    - `05-execution-plan-review.md`
 
-4. **Execution-plan review contract**
-   - `skills/hyper-execution-plan-review/SKILL.md`
-   - `skills/hyper-execution-plan-review/templates/05-execution-plan-review.md`
-   - `skills/hyper-execution-plan/SKILL.md`
+5. **Execution-plan review contract**
+   - `skills/hyper-build/reference/phase-execution-plan-review.md`
+   - `skills/hyper-build/templates/05-execution-plan-review.md`
+   - `skills/hyper-build/reference/phase-execution-plan.md`
    - `skills/hyper-build/reference/data-model.md`
 
-5. **Worker-guardrails contract**
+6. **Worker-guardrails contract**
    - `skills/hyper-build/reference/worker-guardrails.md`
-   - `skills/hyper-worker/SKILL.md`
-   - `skills/hyper-code-review/SKILL.md`
-   - dispatcher skills that mention the reference in their dispatch prompt
+   - `skills/hyper-build/reference/phase-worker.md`
+   - phase reference files that mention the guardrails in their dispatch prompt
 
-6. **`checks.md` contract**
-   - `skills/hyper-verify/SKILL.md`
-   - `skills/hyper-docs/SKILL.md`
-   - `skills/hyper-verify/templates/checks.md`
+7. **`checks.md` contract**
+   - `skills/hyper-build/reference/phase-verify.md`
+   - `skills/hyper-build/reference/phase-docs.md`
+   - `skills/hyper-build/reference/change-review.md` (defines the `## review` block)
+   - `skills/hyper-build/templates/checks.md`
    - `skills/hyper-build/reference/data-model.md`
 
-7. **`hyper` loop contract**
+8. **`hyper` loop contract**
    - `skills/hyper/SKILL.md`
    - `skills/hyper/templates/loop.md`
+   - `skills/hyper/reference/autonomous-run.md` (the `Run: auto` engine:
+     `bar-check` verdict contract, checkpoint/stop-for-user precedence, and the
+     machine-checkable-bar gate; keep in sync with the `Run`/`bar-check`/auto-run
+     wording in `SKILL.md` and the `Run`/`Check:` fields in `templates/loop.md`)
    - `skills/hyper-build/reference/data-model.md`
    - README loop examples and wording
-   - `scripts/validate-hyper.mjs`
-   - optional eval hook: `scripts/eval-hooks/validate-iterate-loop.sh`
-   - hard gate stays intact: authority -> understanding -> code scan -> findings -> loop plan -> part-level approvals -> cycles
+   - hard gate stays intact: authority -> understanding -> code scan -> findings -> loop plan -> part-level approvals -> cycles; `Run: auto` adds a machine-checkable-bar precondition but never weakens this gate
 
-8. **State probe contract**
-   - `skills/hyper-build/scripts/state.mjs` (the read-only Node ESM probe)
-   - `skills/hyper-build/reference/state-root.md` (the probe's contract — invocation, output schema, category mapping, errors, env coverage, sub-skill resolution rule)
-   - `skills/hyper-build/reference/data-model.md` (the id-allocation references that point at the probe)
-   - the five probe-caller skills: `skills/hyper-build/SKILL.md` (uses `<skill-base-dir>/scripts/state.mjs`), `skills/hyper-task/SKILL.md`, `skills/hyper-backlog/SKILL.md`, `skills/hyper/SKILL.md`, `skills/hyper-memory/SKILL.md` (each uses `<skill-base-dir>/../hyper-build/scripts/state.mjs`)
-   - the indirect consumers — every other Hyper skill that says "Resolve the Hyper state root per `../hyper-build/reference/state-root.md`" relies on `state-root.md`'s **Sub-skill resolution** section. If that section is restructured or removed, walk these and update them too: `hyper-intake`, `hyper-spec`, `hyper-technical-plan`, `hyper-execution-plan`, `hyper-execution-plan-review`, `hyper-research`, `hyper-implement`, `hyper-worker`, `hyper-verify`, `hyper-docs`, `hyper-code-review`, `hyper-team`, `hyper-handoff`, `hyper-retro`, `hyper-recipe`
-   - `scripts/validate-hyper.mjs` (presence + schema assertions, including a synthetic-fixture pass that exercises the probe against controlled inputs)
+9. **State probe contract**
+   - canonical source: `shared/scripts/state.mjs` and
+     `shared/scripts/lib/state-root.mjs` (the read-only Node ESM probe),
+     `shared/reference/state-root.md` (the
+     probe's contract — invocation, output schema, category mapping, errors,
+     env coverage), `shared/reference/data-model.md` (the id-allocation
+     references that point at the probe)
+   - the probe is vendored into each consuming skill by `scripts/sync-shared.mjs`
+     per `shared/sync.manifest.json`; never hand-edit the `skills/**` copies
+   - the probe-caller skills each invoke their own local copy
+     (`<skill-base-dir>/scripts/state.mjs`): `skills/hyper-build/SKILL.md`,
+     `skills/hyper-task/SKILL.md`, `skills/hyper-backlog/SKILL.md`,
+     `skills/hyper/SKILL.md`, `skills/hyper-memory/SKILL.md`
+   - the indirect consumers each resolve the state root per their own vendored
+     `reference/state-root.md`. If that contract changes, edit
+     `shared/reference/state-root.md` and re-sync
    - `.claude/skills/install-hyper/scripts/install.sh` and `.agents/skills/install-hyper/scripts/install.sh` (the `verify_probe_reachable` portability check; both files must remain byte-identical; stdout and stderr must stay separated when capturing probe output)
    - keep the probe **read-only**: no writes, no Git mutations, no new external dependencies
    - id allocation is **folder-name-canonical**: the probe scans `T<N>-` / `L<N>-` folder names for next-id math, and surfaces frontmatter-id mismatches as `parse_errors` entries
@@ -93,34 +113,25 @@ Do all of these together:
 
 1. add or rename the folder under `skills/`
 2. update README
-3. update `skills/hyper-build/reference/data-model.md` if the workflow or state model changed
-4. update `scripts/validate-hyper.mjs`
-5. run `node scripts/validate-hyper.mjs`
+3. update `shared/reference/data-model.md` if the workflow or state model
+   changed, then run `node scripts/sync-shared.mjs`
+4. update this file's skill-inventory section and counts
+5. run `node scripts/sync-shared.mjs --check`
 6. grep for stale skill names and stale artifact names
 
 ## When changing the data model
 
-Treat `skills/hyper-build/reference/data-model.md` as authoritative. At minimum,
-check:
+Treat `shared/reference/data-model.md` as the canonical source (its skill copies
+are synced — do not hand-edit them; edit `shared/` and run
+`node scripts/sync-shared.mjs`). At minimum, check:
 
-- `hyper-build`
+- `hyper-build` (and its phase reference files, `reference/phase-*.md`)
 - `hyper-task`
 - `hyper-backlog`
-- `hyper-intake`
-- `hyper-spec`
-- `hyper-technical-plan`
-- `hyper-execution-plan`
-- `hyper-execution-plan-review`
-- `hyper-research`
-- `hyper-implement`
-- `hyper-worker`
-- `hyper-verify`
-- `hyper-docs`
 - `hyper-handoff`
 - `hyper-retro`
 - `hyper-recipe`
 - `hyper`
-- `hyper-short-story`
 - `hyper-memory`
 
 ## Repairing example drift

@@ -1,8 +1,10 @@
+// GENERATED FILE — do not edit here. Source: shared/scripts/lib/state-root.mjs. Regenerate: node scripts/sync-shared.mjs
+
 // Hyper state-root resolver.
 //
 // Resolves the Hyper state root from an optional `--from` hint or the
 // current working directory, following the chain locked in
-// skills/hyper-build/reference/state-root.md:
+// reference/state-root.md:
 //
 //   1. Explicit `.hyper/` hint: strip the `.hyper/` segment, the prefix wins.
 //   2. `git worktree list --porcelain`: first non-bare worktree (the main

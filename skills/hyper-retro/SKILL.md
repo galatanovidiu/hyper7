@@ -8,7 +8,7 @@ description: >
 
 Capture lessons from Hyper work.
 
-Resolve the Hyper state root per `../hyper-build/reference/state-root.md`.
+Resolve the Hyper state root per `reference/state-root.md`.
 
 ## Scope
 
@@ -38,5 +38,5 @@ Keep retros factual and operational. Do not rewrite workflow artifacts during a
 retro unless the user explicitly asks.
 
 When a durable learning surfaces, record it in `.hyper/memory/` per
-the contract in `../hyper-memory/reference/memory.md`, writing the entry inline
+the contract in `reference/memory.md`, writing the entry inline
 rather than invoking the `hyper-memory` skill.

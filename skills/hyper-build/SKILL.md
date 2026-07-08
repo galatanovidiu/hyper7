@@ -1,15 +1,18 @@
 ---
 name: hyper-build
 description: >
-  Starts or resumes structured, phase-based development work through the Hyper build workflow. Reads task state under .hyper/, routes the task into the correct phase, and invokes the matching internal Hyper skill. Use when the work is well-defined enough to commit to fixed phases (intake → spec → technical-plan → execution-plan → implement → verify → docs): a fully-specified feature, a non-trivial bug, a refactor, or continuing tracked task work. For exploratory or adaptive work where the path should stay flexible, use the main hyper skill instead. Keywords: hyper, hyper-build, workflow, task, intake, technical plan, execution plan, implement, resume, structured, phased.
+  Starts or resumes structured, phase-based development work through the Hyper build workflow. Reads task state under .hyper/, routes the task into the correct phase, and follows the matching phase reference file. Use when the work is well-defined enough to commit to fixed phases (intake → spec → technical-plan → execution-plan → implement → verify → docs): a fully-specified feature, a non-trivial bug, a refactor, or continuing tracked task work. For exploratory or adaptive work where the path should stay flexible, use the main hyper skill instead. Keywords: hyper, hyper-build, workflow, task, intake, technical plan, execution plan, implement, resume, structured, phased.
 ---
 
 # hyper-build
 
 Your job: take the user's request, combine it with `.hyper/` state, decide
-whether to create, resume, or ask, then invoke the correct phase skill.
+whether to create, resume, or ask, then follow the correct phase reference
+file.
 
-Never implement, test, or review yourself. The phase skills own the work.
+Never implement, test, or review yourself. The phase reference files own the
+work; each `reference/phase-<phase>.md` is the authoritative instruction set
+for its phase.
 
 ## Before anything else
 
@@ -147,21 +150,20 @@ Route by `phase`:
 
 | `phase` | Next step |
 |---------|-----------|
-| `intake` | Invoke the `hyper-intake` skill. |
-| `spec` | Invoke the `hyper-spec` skill. |
-| `technical-plan` | Invoke the `hyper-technical-plan` skill. |
-| `execution-plan` | Invoke the `hyper-execution-plan` skill. |
-| `research` | Invoke the `hyper-research` skill. |
-| `implement` | Invoke the `hyper-implement` skill. |
-| `verify` | Invoke the `hyper-verify` skill. |
-| `docs` | Invoke the `hyper-docs` skill. |
-| `review` | Invoke the `hyper-code-review` skill. |
+| `intake` | Read `reference/phase-intake.md` and follow it as the authoritative instructions for this phase; apply the verdict it returns. |
+| `spec` | Read `reference/phase-spec.md` and follow it as the authoritative instructions for this phase; apply the verdict it returns. |
+| `technical-plan` | Read `reference/phase-technical-plan.md` and follow it as the authoritative instructions for this phase; apply the verdict it returns. |
+| `execution-plan` | Read `reference/phase-execution-plan.md` and follow it as the authoritative instructions for this phase; apply the verdict it returns. |
+| `research` | Read `reference/phase-research.md` and follow it as the authoritative instructions for this phase; apply the verdict it returns. |
+| `implement` | Read `reference/phase-implement.md` and follow it as the authoritative instructions for this phase; apply the verdict it returns. |
+| `verify` | Read `reference/phase-verify.md` and follow it as the authoritative instructions for this phase; apply the verdict it returns. |
+| `docs` | Read `reference/phase-docs.md` and follow it as the authoritative instructions for this phase; apply the verdict it returns. |
 | `done` | Report completion and stop. |
 | `cancelled` | Report cancellation and stop. |
 
 When re-dispatching on a gate reply, clear `task.md` `awaiting` before
-invoking the phase skill. The phase skill will reapply it via its next verdict
-if needed.
+following the phase reference file. The phase will reapply it via its next
+verdict if needed.
 
 ## After the phase returns
 
@@ -173,15 +175,13 @@ The `implement -> technical-plan` redirect is the only transition that
 retains its trigger artifact across the dispatch boundary: on
 `redirect target: technical-plan` from `implement`, do not delete
 `plan-conflict.md`; it is the input to the next technical-plan dispatch.
-`hyper-implement` deletes it on the subsequent re-entry per its re-entry
-behavior.
+The implement phase (`reference/phase-implement.md`) deletes it on the
+subsequent re-entry per its re-entry behavior.
 
 ### Regenerate dashboard
 
 After applying the verdict and any phase transition, regenerate `dashboard.md`
 per `reference/dashboard.md` before announcing or stopping.
-
-Skip dashboard generation for `scope: code-review`.
 
 ### Announce open gates
 

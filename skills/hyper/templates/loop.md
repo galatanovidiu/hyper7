@@ -10,7 +10,7 @@ updated: <YYYY-MM-DDTHH:MM:SS>
 
 # L<N> — <title>
 
-<!-- Pre-cycle alignment surface: Authority, Goal, Why, Constraints, Non-negotiables, Definition of done, Task understanding, Existing code and findings, Loop plan, Current route, Current focus, Current bar, Handoff cues (Next atomic move at minimum), the current `aligning` or `doing` part under Parts, and the current `aligning` or `doing` part block under Part alignment. -->
+<!-- Pre-implementation alignment surface (filled before the first implement/validate/reroute cycle; alignment-probe cycles may run earlier): Authority, Goal, Why, Constraints, Non-negotiables, Definition of done, Task understanding, Existing code and findings, Loop plan, Current route, Current bar, Handoff cues (Next atomic move at minimum), the current `aligning` or `doing` part under Parts, and the current `aligning` or `doing` part block under Part alignment. -->
 
 ## Goal
 Not stated yet.
@@ -26,6 +26,8 @@ Not stated yet.
 
 ## Definition of done
 Not filled yet.
+<!-- Each line should carry a machine-checkable `— check: <predicate>` whose result lands in the transcript (e.g. `npm test exits 0`, `grep -rc "TODO(auth)" src == 0`, `GET /health → 200`, `dist/app.js exists`). A checkable bar is REQUIRED for `Run: auto` (see reference/autonomous-run.md) and recommended for `Run: manual`. -->
+<!-- Line shape: - <done condition> — check: <predicate> -->
 
 ## Task understanding
 Not filled yet.
@@ -36,6 +38,8 @@ Not filled yet.
 ## Authority
 Mode: interactive
 <!-- Legal values: interactive | delegated -->
+Run: manual
+<!-- Legal values: manual | auto. manual = one cycle then yield to the user (default). auto = the loop drives its own cycles per reference/autonomous-run.md; requires a machine-checkable bar. -->
 Delegated authority: none
 <!-- Shape: none | <standing authority the user granted, including boundaries> -->
 Decision proxies: none
@@ -76,16 +80,15 @@ Approved at: Not yet.
 Not filled yet.
 <!-- Shape: one short route hypothesis for the current path -->
 
-## Current focus
-Not filled yet.
-<!-- Shape: active part + next concrete move -->
-
 ## Current bar
 Not filled yet.
 <!-- Shape: the current stop condition or gate -->
+Check: n/a
+<!-- Machine-evaluable condition for the current state (a command + expected result, a count, or an observation). `n/a` is allowed for `Run: manual`; `Run: auto` requires a real predicate. See reference/autonomous-run.md. -->
+<!-- The next move lives in `## Handoff cues` `Next atomic move` (the canonical next-step field); the active part is read from `## Parts`. There is no separate Current focus section. -->
 
 ## Parts
-<!-- Expand to 2–5 parts when the work decomposes naturally; otherwise use `P1 — Whole goal — aligning`. -->
+<!-- Always start single-part with `P1 — Whole goal — aligning`. Additional parts are created only after the loop plan is approved, via split cycles — the Phase 2 alignment-probe lane exists to discover the decomposition, so do not pre-decompose. -->
 <!-- Legal part statuses: todo | aligning | doing | done -->
 <!--   todo     = part is not current yet -->
 <!--   aligning = part is current and its plan is not yet approved -->
@@ -95,6 +98,7 @@ Not filled yet.
 
 ## Part alignment
 ### P1 — Whole goal
+<!-- Single-part loop: set `#### Understanding` and `#### Existing code and findings` to `Derived from loop-level (single-part loop).` instead of copying from `## Task understanding` / `## Existing code and findings`. See Phase 2 "Single-part derivation". -->
 #### Understanding
 Not filled yet.
 
@@ -110,6 +114,7 @@ Approval source: Not yet.
 <!-- Same legal values as the loop-plan approval source field above -->
 Approved at: Not yet.
 <!-- Same legal values as the loop-plan approved-at field above -->
+<!-- Single-part loop: these three fields plus `Part pressure test` are derived from the loop-plan approval (same source + timestamp), written once when the loop plan is approved — not a second ask. See Phase 2 "Single-part derivation". -->
 
 - Goal: Not agreed yet.
 - Approach: Not agreed yet.
@@ -156,6 +161,7 @@ Write fields in this exact order. Do not reorder, rename, or omit. Replace `_No 
 
   **Intent:** <probe | implement | validate | reroute | reframe | stop>
   Meanings: probe = answer a design or reality question before commitment; implement = production change on an approved part; validate = check current work or route without closing; reroute = same goal, different route; reframe = goal changed; stop = pause, block, or close.
+  `Intent: probe` is the only intent allowed before the alignment gate clears; pre-approval probes run in the Phase 2 alignment-probe lane (read-only, or scratch-only with promotion via a later approved `implement` cycle).
   To open a new part, set `Next: split` with one of the four work intents (`probe | implement | validate | reroute`) — there is no `Intent: split`.
 
   **Observe:** <What you read, ran, or inspected to see the next useful move.>
@@ -181,7 +187,7 @@ _No cycles yet._
 <!-- The first cycle entry replaces this `_No cycles yet._` line. Subsequent cycle entries append below the previous one. The shape comment above stays in place. -->
 
 ## Handoff cues
-<!-- The full block is in the hot resume layer. Keep all three fields current. -->
+<!-- The full block is in the hot resume layer. Keep all three fields current. `Dirty or unvalidated state` also records any alignment-probe scratch location (scratch dir, branch, or worktree); it must read `none` before close. -->
 - Next atomic move: Not filled yet.
 - Current risk or uncertainty: Not filled yet.
 - Dirty or unvalidated state: none
@@ -194,7 +200,7 @@ N is append-only: allocate as max(existing Verify N) + 1. Never rewrite a prior 
   **Tests:** <command> → <exit code, decisive excerpt — link full log under Relevant artifacts if large>
   Legal alternates when no test run applies: `n/a — no test suite in project` | `n/a — research-only loop, no code changes`.
 
-  **Code review:** <code-review skill verdict — pass | needs-changes | blocked — and top findings>
+  **Code review:** <review verdict — pass | needs-changes | blocked — and top findings>
   Legal alternate when the loop produced no code changes: `n/a — research-only loop, no code changes`.
 
   **Docs:** <docs skill output summary, or `n/a — no user-facing surface change`>

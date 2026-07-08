@@ -1,0 +1,58 @@
+{
+  "hyper-build": [
+    "scripts/state.mjs",
+    "scripts/lib/state-root.mjs",
+    "reference/state-root.md",
+    "reference/data-model.md",
+    "reference/memory.md",
+    "reference/intake-triage.md",
+    "reference/gates.md",
+    "reference/archive.md",
+    "reference/bootstrap.md",
+    "reference/change-review.md",
+    "templates/dashboard.md",
+    "templates/task.md"
+  ],
+  "hyper": [
+    "scripts/state.mjs",
+    "scripts/lib/state-root.mjs",
+    "reference/memory.md",
+    "reference/change-review.md"
+  ],
+  "hyper-task": [
+    "scripts/state.mjs",
+    "scripts/lib/state-root.mjs",
+    "reference/state-root.md",
+    "reference/data-model.md",
+    "templates/dashboard.md",
+    "templates/task.md"
+  ],
+  "hyper-backlog": [
+    "scripts/state.mjs",
+    "scripts/lib/state-root.mjs",
+    "reference/state-root.md",
+    "reference/intake-triage.md",
+    "templates/dashboard.md",
+    "templates/task.md"
+  ],
+  "hyper-handoff": [
+    "reference/state-root.md"
+  ],
+  "hyper-retro": [
+    "reference/state-root.md",
+    "reference/memory.md"
+  ],
+  "hyper-recipe": [
+    "reference/state-root.md",
+    "reference/bootstrap.md"
+  ],
+  "hyper-team": [
+    "reference/state-root.md"
+  ],
+  "hyper-memory": [
+    "scripts/state.mjs",
+    "scripts/lib/state-root.mjs",
+    "reference/state-root.md",
+    "reference/memory.md"
+  ]
+}

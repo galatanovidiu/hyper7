@@ -114,8 +114,6 @@ Missing data emits `_not yet written_` for `Goal`, `Plan`, and `Progress`, and
 2. after every phase return, after applying the verdict and any phase
    transition, before announcing or stopping
 
-`scope: code-review` tasks bypass dashboard generation entirely.
-
 ## Failure handling
 
 Regeneration is per-section degradable:
