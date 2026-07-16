@@ -59,7 +59,7 @@ TBD
 
 ## Parts
 <!-- 2–5 parts when the work decomposes naturally; else the single P1 below. -->
-<!-- Status lives in the heading: todo | current | done. Exactly one part is `current` from creation to close; queued parts start `todo`, `Pressure-tested: no`, `Approved: no`. -->
+<!-- Status lives in the heading: todo | current | done. Exactly one part is `current` from creation to close; queued parts start `todo`, `Pressure-tested: no`, `Approved: no`, and may keep `TBD` fields until promoted. Dependencies form a DAG over P<N> ids — no circles. -->
 <!-- Part numbers are append-only: next = max(existing P<N>) + 1. Work on a part requires status `current` AND `Approved: user|proxy <ts>`. -->
 
 ### P1 — Whole goal — current
@@ -106,6 +106,7 @@ Pairings: Intent reframe → Next reframe. Intent stop → Next pause | close. T
 _No cycles yet._
 
 ## Handoff cues
+<!-- Hot resume layer — keep all three fields current. -->
 - Next atomic move: TBD
 - Current risk or uncertainty: TBD
 - Dirty or unvalidated state: none

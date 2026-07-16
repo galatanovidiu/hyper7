@@ -422,9 +422,10 @@ Each loop combines:
 
 For long loops, the intended read order is layered:
 
-1. hot state — goal, loop-plan status lines, the current part block, handoff
-   cues, evidence digest
-2. warm state — remaining living state, recent cycles, latest verify entry
+1. hot state — every section from goal through route (including authority),
+   the current part block, evidence digest, handoff cues
+2. warm state — other part blocks, recent decisions, starting point, recent
+   cycles, latest verify entry, outcome
 3. cold state — older cycles and large linked artifacts only when needed
 
 `hyper` has a hard approval gate before implementation:
@@ -432,9 +433,10 @@ For long loops, the intended read order is layered:
 - the loop starts with an alignment pass
 - `loop.md` is created immediately
 - `## Authority` records whether approval gates are interactive or delegated
-- the alignment surface (`## Goal` through `## Parts`) must be filled — no
-  `TBD` placeholder and no unreplaced `<...>` prompt remaining (HTML comments
-  are exempt) — before any cycle starts
+- the alignment sections (`## Goal` through `## Route`) and the current part
+  block must be filled — no `TBD` placeholder and no unreplaced `<...>` prompt
+  remaining (HTML comments are exempt; queued `todo` parts may keep `TBD`
+  until promoted) — before any cycle starts
 - `## Loop plan` carries `Pressure-tested: no | <timestamp> | skipped —
   trivial plan` and `Approved: no | user <timestamp> | proxy <timestamp>`
 - each part block under `## Parts` carries its own `Approved:` line

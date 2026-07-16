@@ -36,9 +36,9 @@ Terms: a **loop** is the whole tracked unit of work; a **part** (`P<N>`) is one 
 
 A loop lives at `.hyper/loops/L<N>-<slug>/loop.md` (structure: `templates/loop.md`), plus optional evidence files linked from `## Relevant artifacts`. Resolve paths from the probe's `state_root`; keep paths written into the file repo-relative.
 
-Event log + materialized view: `## Decisions`, `## Cycles`, and `## Verified outcomes` are append-only — entry numbers allocated max + 1, entries not rewritten; every other section is living state, overwritten as reality changes. Every mutation refreshes frontmatter `updated`. Timestamps: `YYYY-MM-DDTHH:MM:SS`.
+Event log + materialized view: `## Decisions`, `## Cycles`, and `## Verified outcomes` are append-only — `Cycle N` and `Verify N` numbers allocated max + 1, `## Decisions` entries as timestamped bullets, none rewritten. Every other section is living state, overwritten as reality changes — except `## Starting point`, written once at creation and never edited. Every mutation refreshes frontmatter `updated`. Timestamps: UTC, `YYYY-MM-DDTHH:MM:SS`.
 
-`TBD` is the only placeholder. Replace a section's `TBD` with its first real content; write `TBD` for anything genuinely unknown — never invent a different placeholder. If `## Cycles` grows unwieldy, move old entries to `cycles-archive.md` in the loop folder, leaving one-line stubs.
+`TBD` is the only placeholder. Replace a section's `TBD` with its first real content; write `TBD` for anything genuinely unknown — never invent a different placeholder. If `## Cycles` grows unwieldy, move old entries to `cycles-archive.md` in the loop folder, leaving one-line stubs — archiving and interrupt repair are the only two exceptions to append-only.
 
 ## Phase 1 — Load and Route
 
@@ -60,9 +60,9 @@ Read `.hyper/rules.md` (project rules — normative when present) and, when the 
 4. Parts: 2–5 when the work decomposes naturally, else the single `P1 — Whole goal`. Exactly one part is `current`.
 5. Announce the created loop id and title in one line.
 
-**On resume**, read in layers: hot (always) — `## Goal`, the `## Loop plan` status lines, the current part block, `## Handoff cues`, `## Evidence digest`. Warm (when the next move needs more) — remaining living state, last 3 cycles, latest verify entry. Cold (on demand) — older cycles, archive, artifact files.
+**On resume**, read in layers: hot (always) — every section from `## Goal` through `## Route` (including `## Authority`), the current part block, `## Evidence digest`, `## Handoff cues`. Warm (when the next move needs more) — other part blocks, recent `## Decisions` entries, `## Starting point`, last 3 cycles, latest verify entry, `## Outcome`. Cold (on demand) — older cycles, archive, artifact files.
 
-**Interrupt repair.** If the last cycle entry lacks `Next`, the session died mid-write. The one exception to append-only: complete that entry in place with what you know — prose fields may say `interrupted`; when the real next move is unknown, set `Next: back up`. Never start a new cycle over an incomplete one.
+**Interrupt repair.** If the last cycle entry lacks `Next`, the session died mid-write. The one exception to append-only: complete that entry in place with what you know — prose fields may say `interrupted`; when the real next move is unknown, set `Next: back up`. Never start a new cycle over an incomplete one. If part statuses are inconsistent on resume (zero or two `current` parts), repair from the last cycle and `## Handoff cues`, and log the repair in `## Decisions`.
 
 As work progresses, promote durable signal upward: load-bearing choices and route changes → `## Decisions`, still-relevant findings → `## Evidence digest`, restart-critical notes → `## Handoff cues`.
 
@@ -71,18 +71,18 @@ As work progresses, promote durable signal upward: load-bearing choices and rout
 An interview pass before any implementation:
 
 1. Restate the request and scan the project (relevant files, recent commits, related loops) — write `## Understanding`.
-2. Fill `## Goal`, `## Constraints`, `## Non-negotiables`, and `## Definition of done` from what is known plus the clarifications gathered here.
+2. Fill `## Goal` (including its `Why:` line), `## Constraints`, `## Non-negotiables`, and `## Definition of done` from what is known plus the clarifications gathered here.
 3. Settle `## Loop plan` (approach, parts, key decisions, risks) and `## Route` with the user — or a decision proxy in delegated mode.
 
 Ask one question per message, and only what changes the loop: goal, hard constraints, plan shape, first part boundary. Every ask that presents options marks exactly one `[RECOMMENDED — <reason citing concrete signal>]`; if no option is defensibly better, say so and let the user pick. This rule applies to every question and approval ask in this skill.
 
 **Pressure test.** A plan is **non-trivial** when it spans multiple parts, adds an external dependency, changes a public contract, or makes a hard-to-reverse decision. Non-trivial plans require a pressure test before approval: invoke the pressure-test capability (see Capabilities), preferring a sub-agent to run the interview and return a digest; fold the answers into the plan and set `Pressure-tested: <ts>`. Trivial plans record `Pressure-tested: skipped — trivial plan`. Non-trivial plans also get an offer of cross-model review (`hyper-team`), outcome logged in `## Decisions` — the user may decline; in delegated mode invoke it without asking. If review changes the plan, re-run the pressure test.
 
-**Post and ask.** Write the agreed plan into the file — including `## Route` and the first `## Handoff cues` next move — post a concise summary in chat (goal, approach, parts, key decisions, risks), then ask for approval per Authority. On approval set `Approved: user <ts>` (or `proxy <ts>`). On rejection set `Approved: no`, log the reason in `## Decisions`, rework the disputed area, re-post, re-ask. Rework that materially changes the plan re-runs the pressure test (and the non-triviality check) before the re-ask. The plan only exists once the file is written and the summary has been seen.
+**Post and ask.** Write the agreed plan into the file — including `## Route` and the first `## Handoff cues` next move — post a concise summary in chat (goal, approach, parts, key decisions, risks), then ask for approval per Authority — the ask names what it covers: the loop plan and the current part's plan together. On approval set `Approved: user <ts>` (or `proxy <ts>`). On rejection set `Approved: no`, log the reason in `## Decisions`, rework the disputed area, re-post, re-ask. Rework that materially changes the plan re-runs the pressure test (and the non-triviality check) before the re-ask. The plan only exists once the file is written and the summary has been seen.
 
-**Gate.** Cycles start when: the alignment surface (`## Goal` through `## Parts` in the template) contains no `TBD` and no unreplaced `<...>` prompt (HTML comments are exempt); the loop plan's `Pressure-tested` is a timestamp or the recorded skip; the current part's `Pressure-tested` is resolved (a timestamp or `covered by loop plan`); and the loop plan and the current part both show `Approved: user|proxy <ts>`.
+**Gate.** Cycles start when: the alignment sections (`## Goal` through `## Route`) and the **current part block** contain no `TBD` and no unreplaced `<...>` prompt (HTML comments exempt; queued `todo` parts may keep `TBD` until promoted); `## Handoff cues` `Next atomic move` is filled; the loop plan's `Pressure-tested` is a timestamp or the recorded skip; the current part's `Pressure-tested` is resolved (a timestamp or `covered by loop plan`); and the loop plan and the current part both show `Approved: user|proxy <ts>`.
 
-**Parts.** Each part block carries its own goal, approach, risks, and `Approved:` line. In a single-part loop, loop-plan approval covers P1 — record the same approval on both. A later part is aligned and approved when it becomes current, informed by what earlier parts taught. A part needs its own pressure test only when it adds a new dependency, data shape, or user-visible surface; otherwise record `covered by loop plan`.
+**Parts.** Each part block carries its own goal, approach, risks, and `Approved:` line. The Phase 2 approval ask covers the loop plan and the initial current part together (single-part loops: that is P1) — record the approval on both. A later part is aligned and approved when it becomes current, informed by what earlier parts taught. Dependencies between parts must form a DAG over `P<N>` ids — no circles; on a circle, ask the user which dependency to break before approving. A part needs its own pressure test only when it adds a new dependency, data shape, or user-visible surface; otherwise record `covered by loop plan`.
 
 ## Phase 3 — Cycle
 
@@ -102,34 +102,36 @@ Intent rules:
 - `reframe` — the goal changed: update `## Goal`, set `Next: reframe`, and re-run Phase 2 before any further cycle. A reframe voids approvals — the loop plan and every non-`done` part reset to `Approved: no` and `Pressure-tested: no`; `done` parts stand unless the user explicitly reopens one (log it in `## Decisions`). Re-approval may be brief but is never inherited from the old goal.
 - `stop` — pause (loop stays `active`; write `## Handoff cues` — `Next atomic move` is the move the *next* session should take, including prerequisites like branch or env, plus current risk and dirty state) or close via `Next: close`.
 
-**Splits and part handover.** To open a new part: end the cycle with `Next: split`, append a part block (`P<max+1>`, status `todo`, `Approved: no`), then align and approve it before any cycle runs on it. It becomes `current` when the prior part finishes — or immediately if work is redirecting, in which case the displaced part goes back to `todo` (its `Approved:` line stands) or to `done` if its remaining scope moved into the new part; say which in the cycle's Learning. One new part per split cycle. When the current part's goal is met, flip it `done` and promote the next part in the same turn; if none remain, head to close. Exactly one part is `current` from creation until the loop closes — the final part flips `done` in the closing cycle. `done → current` reopening happens only via verify remediation or an explicit user decision, logged in `## Decisions`.
+**Splits and part handover.** Opening a new part starts with the zoom-out checkpoint below — run it before writing anything; only if the chosen direction is still the split, end the cycle with `Next: split`, append a part block (`P<max+1>`, status `todo`, `Approved: no`), then align and approve it before any cycle runs on it. A `todo` part rejected before approval is deleted — log the removal in `## Decisions`; never reuse its number. It becomes `current` when the prior part finishes — or immediately if work is redirecting, in which case the displaced part goes back to `todo` (its `Approved:` line stands) or to `done` if its remaining scope moved into the new part; say which in the cycle's Learning. One new part per split cycle. When the current part's goal is met, flip it `done` and promote the next part in the same turn; if none remain, head to close. Exactly one part is `current` from creation until the loop closes — the final part flips `done` in the closing cycle. `done → current` reopening happens only via verify remediation or an explicit user decision, logged in `## Decisions`.
 
 **Zoom-out checkpoints.** The pull to finish the next cycle is strongest exactly when the route is wrong. Stop and check when any trigger fires:
 
 - three cycles completed in the current part since the last checkpoint;
 - two consecutive cycles ended `back up`;
-- a reroute landed that the user (or proxy) did not explicitly choose;
+- a cycle's Learning forced a reroute that no checkpoint or user/proxy decision chose;
 - the next move is a split;
 - the user hints at a pivot ("what about…", "wait", "I'm not sure", naming a different goal in passing) — treat it as a reframe signal until proven otherwise; never absorb it silently as a plan tweak.
 
-At a checkpoint, post (chat shape): where the loop is, what was believed when the part started, what the evidence has shown since, and three directions — continue, reroute, reframe. Ask per Authority; log the ruling in `## Decisions`. Checkpoints are not skippable — "the next cycle is almost done" is the failure mode, not a reason.
+At a checkpoint, post (chat shape): where the loop is, what the part plan assumed (its block plus approval-time `## Decisions` entries), what the evidence has shown since, and three directions — continue, reroute, reframe. Ask per Authority; log the ruling in `## Decisions`. Checkpoints are not skippable — "the next cycle is almost done" is the failure mode, not a reason.
 
 ## Phase 4 — Verify and Close
 
 Entered by the closing pair `Intent: stop` + `Next: close`, or by user-explicit abandonment at any point (→ close-without-verify branch). Paused and blocked loops stay `active` and do not enter Phase 4.
 
-First detect research-only loops: `git diff` against the starting commit in `## Starting point`. No code changes → tests and code review record their `n/a` alternates and the review capability is skipped.
+First detect research-only loops: diff against the starting commit in `## Starting point` — `git diff <commit>` **plus** `git status --porcelain` (untracked files are code changes too). No starting commit or no git repo → judge from the cycle log's `implement` cycles. Only a loop with no code changes anywhere is research-only: tests and code review record their `n/a` alternates and the review capability is skipped.
 
 **Run four checks**, recorded as a `Verify N` entry (shape in `templates/loop.md`):
 
 1. **Tests** — run the project's suite; capture command, exit code, decisive excerpt (full log → artifact).
 2. **Code review** — invoke `hyper-code-review` on the loop's diff; record verdict and top findings.
-3. **Docs** — if user-facing surface changed (CLI, UI, API, public functions, advertised behavior), invoke `hyper-docs`; else `n/a`.
+3. **Docs** — if user-facing surface changed (CLI, UI, API, public functions, advertised behavior), invoke `hyper-docs`; else record `n/a — no user-facing surface change`.
 4. **DoD walk** — every `## Definition of done` line: `met | not met | n/a`, each citing evidence already recorded in the loop (file:line, test name, artifact, or log entry). Evidence is cited, never invented at verify time.
 
-**Result: pass** → set `status: done`, write `Close summary` (result + material tradeoffs) and `Verify link: Verify N`, post a closing chat summary.
+**Result mapping** — `pass`: tests green or legal `n/a`, review `pass` or `n/a`, docs done or `n/a`, every DoD line `met | n/a`. `fail`: a failing test, a `blocked` review, or any DoD line `not met`. `partial`: everything else (e.g. review `needs-changes` with tests green). Set `Verify link: Verify N` in `## Outcome` on every run, pass or fail.
 
-**Result: partial | fail** → loop stays `active`. Run one or more remediation cycles against the named failures — reopen a `done` part if that is where the failure lives, logging it — then re-enter the verify gate and append a fresh `Verify N+1` entry. The re-review may scope to the remediation diff; tests re-run in full. Do not edit `## Definition of done` to make a failure pass without explicit user approval.
+**Result: pass** → set `status: done`, write `Close summary` (result + material tradeoffs), post a closing chat summary.
+
+**Result: partial | fail** → loop stays `active`. Rewrite `## Handoff cues` with the named failures as the next move. Run one or more remediation cycles against them — reopen a `done` part if that is where the failure lives, logging it, and flip it back to `done` when its remediation completes — then re-enter the verify gate and append a fresh `Verify N+1` entry. The re-review scopes to the remediation diff plus every unresolved finding from the failed entry; tests re-run in full. Do not edit `## Definition of done` to make a failure pass without explicit user approval.
 
 **Close without verify** — user-explicit only ("drop it", "good enough", "abandon"): check `Dirty or unvalidated state`; if anything other than `none`, ask — commit, stash, discard, or leave for the next loop — and record the choice. Then set `status: done`, write a real `Close summary`, `Verify link: n/a`, and the close-without-verify lines from the template.
 
