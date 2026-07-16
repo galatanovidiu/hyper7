@@ -2,221 +2,132 @@
 id: L<N>
 title: <title>
 status: active
-# Legal values: active | done
-# Note: paused or blocked loops stay `active`; the last cycle's `Next: pause` is the only paused marker.
+# Legal values: active | done. Paused/blocked loops stay `active`; the last cycle's `Next: pause` is the only paused marker.
 created: <YYYY-MM-DDTHH:MM:SS>
 updated: <YYYY-MM-DDTHH:MM:SS>
 ---
 
 # L<N> — <title>
 
-<!-- Pre-cycle alignment surface: Authority, Goal, Why, Constraints, Non-negotiables, Definition of done, Task understanding, Existing code and findings, Loop plan, Current route, Current focus, Current bar, Handoff cues (Next atomic move at minimum), the current `aligning` or `doing` part under Parts, and the current `aligning` or `doing` part block under Part alignment. -->
+<!-- `TBD` is the only placeholder. A section is filled when no `TBD` and no `<...>` prompt remains in it. -->
 
 ## Goal
-Not stated yet.
+TBD
 
-## Why
-Not stated yet.
+Why: TBD
 
 ## Constraints
-- None stated.
+- TBD
 
 ## Non-negotiables
-- None stated.
+- TBD
 
 ## Definition of done
-Not filled yet.
+- TBD
 
-## Task understanding
-Not filled yet.
-
-## Existing code and findings
-Not filled yet.
+## Understanding
+<!-- Restate the ask; what already exists in the codebase; what is missing or unclear. -->
+TBD
 
 ## Authority
 Mode: interactive
-<!-- Legal values: interactive | delegated -->
+<!-- interactive | delegated -->
 Delegated authority: none
-<!-- Shape: none | <standing authority the user granted, including boundaries> -->
+<!-- none | <standing authority the user granted, including boundaries> -->
 Decision proxies: none
-<!-- Shape: none | <skills or agent roles that may decide inside delegated authority> -->
+<!-- none | <skills or agent roles that may decide inside delegated authority> -->
 Stop for user:
 - goal, why, definition of done, or non-negotiables would change
-- destructive action, credential/security/privacy/legal risk, external side effect, or material cost appears
+- destructive action, credential/security/privacy/legal risk, external side effect, or material cost
 - public contract or user-facing behavior would change outside the approved goal
-- close without verify, unresolved delegate disagreement, or missing required proxy
+- close without verify, unresolved proxy disagreement, or missing required proxy
 
 ## Loop plan
-Pressure-tested at: Not yet.
-<!-- Legal values: Not yet. | <YYYY-MM-DDTHH:MM:SS> -->
-External review: Not yet.
-<!-- Legal values: Not yet. | completed by a cross-model-review skill | skipped by user | n/a — trivial loop plan | n/a — no cross-model-review skill installed -->
-<!-- Pick by precedence:
-     trivial plan                                          → n/a — trivial loop plan
-     non-trivial + no installed skill                      → n/a — no cross-model-review skill installed
-     non-trivial + interactive + skill installed + user runs it    → completed by a cross-model-review skill
-     non-trivial + interactive + skill installed + user declines   → skipped by user
-     non-trivial + delegated + skill installed                     → completed by a cross-model-review skill
--->
-Status: awaiting approval
-<!-- Legal values: awaiting approval = waiting for user/proxy verdict | approved = approval recorded | needs rework = plan rejected -->
-Approval source: Not yet.
-<!-- Legal values: Not yet. | user | delegated authority -->
-Approved at: Not yet.
-<!-- Legal values: Not yet. | <YYYY-MM-DDTHH:MM:SS> -->
-<!-- `Not yet.` is also the reset value after `needs rework`. -->
+Pressure-tested: no
+<!-- no | <YYYY-MM-DDTHH:MM:SS> | skipped — trivial plan -->
+Approved: no
+<!-- no | user <YYYY-MM-DDTHH:MM:SS> | proxy <YYYY-MM-DDTHH:MM:SS>. Rework or reframe resets to `no`. -->
 
-- Goal and destination: Not agreed yet.
-- Approach: Not agreed yet.
-- Parts and order: Not agreed yet.
-- Key decisions: Not agreed yet.
-- Open risks: Not agreed yet.
+- Approach: TBD
+- Parts and order: TBD
+- Key decisions: TBD
+- Open risks: TBD
 
-## Current route
-Not filled yet.
-<!-- Shape: one short route hypothesis for the current path -->
-
-## Current focus
-Not filled yet.
-<!-- Shape: active part + next concrete move -->
-
-## Current bar
-Not filled yet.
-<!-- Shape: the current stop condition or gate -->
+## Route
+TBD
+<!-- One-line current route hypothesis. On reroute: overwrite here, log a `route:` entry with the reason in Decisions. -->
 
 ## Parts
-<!-- Expand to 2–5 parts when the work decomposes naturally; otherwise use `P1 — Whole goal — aligning`. -->
-<!-- Legal part statuses: todo | aligning | doing | done -->
-<!--   todo     = part is not current yet -->
-<!--   aligning = part is current and its plan is not yet approved -->
-<!--   doing    = part is current and its plan is approved; implementation in progress -->
-<!--   done     = part is finished -->
-- P1 — Whole goal — aligning
+<!-- 2–5 parts when the work decomposes naturally; else the single P1 below. -->
+<!-- Status lives in the heading: todo | current | done. Exactly one part is `current` from creation to close; queued parts start `todo`, `Pressure-tested: no`, `Approved: no`. -->
+<!-- Part numbers are append-only: next = max(existing P<N>) + 1. Work on a part requires status `current` AND `Approved: user|proxy <ts>`. -->
 
-## Part alignment
-### P1 — Whole goal
-#### Understanding
-Not filled yet.
-
-#### Existing code and findings
-Not filled yet.
-
-#### Part plan
-Part pressure test: Not yet.
-<!-- Legal values: Not yet. | completed at <YYYY-MM-DDTHH:MM:SS> | covered by loop pressure test <YYYY-MM-DDTHH:MM:SS> -->
-Status: awaiting approval
-<!-- Same legal values as the loop-plan status field above -->
-Approval source: Not yet.
-<!-- Same legal values as the loop-plan approval source field above -->
-Approved at: Not yet.
-<!-- Same legal values as the loop-plan approved-at field above -->
-
-- Goal: Not agreed yet.
-- Approach: Not agreed yet.
-- Dependencies and risks: Not agreed yet.
-<!-- Dependencies must form a DAG over P<N> ids. No cycles. -->
-
-<!--
-Repeat the P<N> block above for each part. Part numbers are append-only:
-allocate the next part as max(existing P<N>) + 1; never reuse numbers.
--->
-
-## Evidence digest
-<!-- Replace `- None yet.` with the first real entry. -->
-- None yet.
-
-## Relevant artifacts
-<!-- Replace `- None yet.` with the first real entry. -->
-<!-- Naming: cycle<N>-<short-tag>.<ext>, verify<N>-<YYYY-MM-DD>.<ext>. -->
-- None yet.
-
-## Bar history
-<!-- Entry shape: - <YYYY-MM-DDTHH:MM:SS> — <bar change and reason> -->
-<!-- Replace `- None yet.` with the first real entry on loop creation (the initial bar, with its creation timestamp). -->
-- None yet.
-
-## Route shifts
-<!-- Entry shape: - <YYYY-MM-DDTHH:MM:SS> — <route change and reason> -->
-<!-- Replace `- None yet.` with the first real entry. -->
-- None yet.
+### P1 — Whole goal — current
+Pressure-tested: covered by loop plan
+<!-- covered by loop plan | no | <YYYY-MM-DDTHH:MM:SS> — a part needs its own test when it adds a new dependency, data shape, or user-visible surface -->
+Approved: no
+- Goal: TBD
+- Approach: TBD
+- Dependencies and risks: TBD
 
 ## Decisions
-<!-- Replace `- None yet.` with the first real entry. -->
-- None yet.
+<!-- Single append-only log for load-bearing choices, rulings, and route changes. -->
+<!-- Entry shape: `- <YYYY-MM-DDTHH:MM:SS> — <entry>`. Prefix route changes with `route:` and include the reason. Replace the TBD with the first real entry. -->
+- TBD
+
+## Evidence digest
+<!-- Living list: still-relevant findings promoted from cycles. -->
+- TBD
+
+## Relevant artifacts
+<!-- Evidence files saved in the loop folder (logs, diffs, screenshots), linked here. -->
+- TBD
 
 ## Starting point
-- None yet.
-<!-- Replace `- None yet.` with the one-time starting snapshot written at create time. -->
+<!-- One-time snapshot at creation: repo state, starting commit (`git rev-parse HEAD`), prior loop reference if continuing one. -->
+TBD
 
 ## Cycles
 
 <!--
-Cycle entry shape — append entries below this comment as `### Cycle N — <YYYY-MM-DDTHH:MM:SS> — <short title>`.
-Write fields in this exact order. Do not reorder, rename, or omit. Replace `_No cycles yet._` with the first real entry.
+Append entries as `### Cycle N — <YYYY-MM-DDTHH:MM:SS> — <short title>`. N = max + 1; entries are never rewritten. Fields, exact order:
 
-  **Intent:** <probe | implement | validate | reroute | reframe | stop>
-  Meanings: probe = answer a design or reality question before commitment; implement = production change on an approved part; validate = check current work or route without closing; reroute = same goal, different route; reframe = goal changed; stop = pause, block, or close.
-  To open a new part, set `Next: split` with one of the four work intents (`probe | implement | validate | reroute`) — there is no `Intent: split`.
+  **Intent:** probe | implement | validate | reroute | reframe | stop
+  **Move:** <what was done and why it was the next useful thing — smallest meaningful move>
+  **Evidence:** <exact result, verbatim where practical. For `implement`: diff range as file:line-line plus one of: passing test | command + output | screenshot/log>
+  **Learning:** <what the evidence changed about the prior belief, the route, or the risks. `no change` is a valid finding>
+  **Next:** continue | back up | split | pause | close | reframe
 
-  **Observe:** <What you read, ran, or inspected to see the next useful move.>
-
-  **Orient:** <What matters now and why this move is next. For non-TDD `implement` cycles, also state the rationale for not using TDD.>
-
-  **Prior belief:** <What I expected before this cycle. `same as cycle N-1` is fine when nothing shifted.>
-
-  **Action:** <Smallest meaningful move taken.>
-
-  **Evidence:** <Exact result. For non-TDD `implement` cycles: the diff range as `file:line-line`, plus one of: a passing existing test that covers the change, a manual verification command and its output, or a screenshot/log. For delegations that returned no usable output: `Delegation returned no usable output: <one-line reason>`.>
-
-  **Learning:** <What the evidence changed about my prior belief.>
-
-  **Route impact:** <How this changes the route or parts. `no change` is a valid finding.>
-
-  **Next:** <continue | back up | split | validate | pause | close | reframe>
-  Meanings: continue = another cycle on the current route; back up = return to an earlier phase or assumption; split = this cycle stopped to open a new part — the part block has been written and is awaiting approval (the next cycle runs on it after its gate clears); validate = next cycle uses the validate intent; pause = stop with the loop still active; close = hand off into Phase 4; reframe = the goal changed and Phase 2 alignment must re-run before any further cycle.
-  Intent × Next: `Intent: reframe` forces `Next: reframe`. `Intent: stop` forces `Next: pause | close`. `Next: split` is allowed only when `Intent` is `probe | implement | validate | reroute`.
+Intent meanings: probe = answer a question before commitment · implement = production change on an approved current part · validate = check work or route · reroute = same goal, new route (update ## Route + `route:` Decisions entry) · reframe = the goal changed (voids approvals; re-run Align) · stop = pause or close.
+Next meanings: continue = another cycle on this route · back up = revise a plan or assumption · split = a new part block was written and awaits approval · pause = stop, loop stays active · close = enter Verify and Close · reframe = re-run Align first.
+Pairings: Intent reframe → Next reframe. Intent stop → Next pause | close. There is no `Intent: split` — a split never bypasses part approval.
 -->
 
 _No cycles yet._
-<!-- The first cycle entry replaces this `_No cycles yet._` line. Subsequent cycle entries append below the previous one. The shape comment above stays in place. -->
 
 ## Handoff cues
-<!-- The full block is in the hot resume layer. Keep all three fields current. -->
-- Next atomic move: Not filled yet.
-- Current risk or uncertainty: Not filled yet.
+- Next atomic move: TBD
+- Current risk or uncertainty: TBD
 - Dirty or unvalidated state: none
 
 ## Verified outcomes
+
 <!--
-Entry shape — append as `### Verify N — <YYYY-MM-DDTHH:MM:SS>`.
-N is append-only: allocate as max(existing Verify N) + 1. Never rewrite a prior entry. Replace `_No verify runs yet._` with the first real entry.
+Append entries as `### Verify N — <YYYY-MM-DDTHH:MM:SS>`. N = max + 1; entries are never rewritten, even after remediation.
 
-  **Tests:** <command> → <exit code, decisive excerpt — link full log under Relevant artifacts if large>
-  Legal alternates when no test run applies: `n/a — no test suite in project` | `n/a — research-only loop, no code changes`.
-
-  **Code review:** <code-review skill verdict — pass | needs-changes | blocked — and top findings>
-  Legal alternate when the loop produced no code changes: `n/a — research-only loop, no code changes`.
-
-  **Docs:** <docs skill output summary, or `n/a — no user-facing surface change`>
-
-  **Definition of done:**
-  - <DoD line 1> — met | not met | n/a — <evidence: file:line, test name, screenshot path, decision link, etc.>
-  - <DoD line 2> — met | not met | n/a — <evidence>
-
+  **Tests:** <command → exit code, decisive excerpt> | n/a — no test suite | n/a — research-only loop
+  **Code review:** <verdict: pass | needs-changes | blocked, plus top findings> | n/a — research-only loop
+  **Docs:** <summary> | n/a — no user-facing surface change
+  **Definition of done:** one line per DoD item — met | not met | n/a — <evidence already recorded in this file: file:line, test name, artifact, or log entry>
   **Result:** pass | partial | fail
-
-  **Follow-up:** <stop and close | remediation cycle to fix <what>>
-  (Distinct from a cycle's `Next` field. `Follow-up` belongs to verify entries; legal values are limited to the two shown here.)
 -->
 
 _No verify runs yet._
-<!-- The first verify entry replaces this `_No verify runs yet._` line. Subsequent verify entries append below the previous one. The shape comment above stays in place. -->
 
 ## Outcome
-Close summary: Not finished yet.
-Verify link: None yet.
-<!-- Legal values: None yet. | Verify N | n/a -->
-<!-- When Verify link: n/a, add:
+Close summary: TBD
+Verify link: TBD
+<!-- Verify N | n/a. When n/a (close without verify), add:
 Close-without-verify reason: <reason>
 Unfinished items: <what still matters>
 -->

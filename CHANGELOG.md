@@ -6,6 +6,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and Hyper follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 While Hyper is pre-1.0, the skill contract may change between minor versions.
 
+## [Unreleased]
+
+### Changed
+
+- **`hyper` skill rebuilt with less ceremony (breaking for in-flight loops).**
+  Same workflow — align with approval gates, evidence-backed OODA cycles,
+  zoom-out checkpoints, hard verify gate — at half the size (SKILL.md 422 → 192
+  lines, template 222 → 133). The loop file loses its duplicated state:
+  `## Part alignment` merges into `## Parts` (each part block carries status,
+  pressure-test, and approval inline; statuses are now `todo | current |
+  done`), `## Current bar`, `## Bar history`, `## Current focus`, and
+  `## Route shifts` are gone (`route:`-tagged entries land in `## Decisions`;
+  the next move lives in `## Handoff cues`). Approval bookkeeping collapses to
+  one line (`Approved: no | user <ts> | proxy <ts>`), cycle entries shrink
+  from nine fields to five (`Intent / Move / Evidence / Learning / Next`), and
+  `TBD` is the only placeholder. Behavior changes: the pressure test is
+  required only for non-trivial plans (trivial plans record a skip), the
+  pressure-test capability points at `grilling` (the model-invocable skill;
+  `grill-me` is its user-typed launcher and cannot be auto-invoked), the
+  five-line chat block applies at meaningful moments instead of every message,
+  implement-cycle sub-agent dispatch is the default for multi-file slices
+  instead of mandatory for all, per-cycle goal reassessment folds into the
+  zoom-out checkpoints, and loop creation records the starting commit so
+  verify's research-only detection has a real baseline. Done loops written by
+  the old template stay valid — they are never reopened and the frontmatter
+  contract (`id`, `title`, `status: active | done`, `created`, `updated`) is
+  unchanged.
+
 ## [0.2.1] - 2026-06-04
 
 ### Fixed

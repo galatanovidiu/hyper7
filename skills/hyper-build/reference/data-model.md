@@ -393,6 +393,8 @@ contains:
 - optional evidence files (logs, command output, screenshots, diffs)
   referenced from `## Relevant artifacts` in `loop.md`. Subfolders are allowed
   when grouping helps.
+- optional `cycles-archive.md` holding old cycle entries moved out of a long
+  `loop.md`, with one-line stubs left behind.
 
 Loop ids are allocated by the state probe; see
 [reference/state-root.md](state-root.md). Ids are never reused. Loops are
@@ -411,19 +413,18 @@ Loop frontmatter fields:
 
 Each loop combines:
 
-- **Living state** — goal, constraints, definition of done, task
-  understanding, existing code and findings, authority mode, loop plan,
-  current route, current focus, current bar, parts, part alignment, evidence
-  digest, relevant artifacts, handoff cues, and final outcome
-- **Evidence history** — bar history, route shifts, decisions, starting point,
-  and cycle log
+- **Living state** — goal, constraints, non-negotiables, definition of done,
+  understanding, authority mode, loop plan, route, parts (each part block
+  carries its own status, pressure-test, and approval), evidence digest,
+  relevant artifacts, starting point, handoff cues, and final outcome
+- **Append-only history** — decisions (including `route:`-prefixed route
+  changes), cycle log, and verify entries
 
 For long loops, the intended read order is layered:
 
-1. hot state — authority, task understanding, existing code and findings, loop
-   plan, route, focus, bar, parts, part alignment, evidence digest, handoff cues
-2. warm state — recent decisions, recent route shifts, relevant artifacts, and
-   recent cycles
+1. hot state — goal, loop-plan status lines, the current part block, handoff
+   cues, evidence digest
+2. warm state — remaining living state, recent cycles, latest verify entry
 3. cold state — older cycles and large linked artifacts only when needed
 
 `hyper` has a hard approval gate before implementation:
@@ -431,20 +432,22 @@ For long loops, the intended read order is layered:
 - the loop starts with an alignment pass
 - `loop.md` is created immediately
 - `## Authority` records whether approval gates are interactive or delegated
-- `## Task understanding`, `## Existing code and findings`, and
-  `## Loop plan` must be filled before any implementation cycle starts
-- `## Loop plan` carries `Status: awaiting approval | approved | needs rework`,
-  `Approval source: Not yet. | user | delegated authority`, and
-  `Approved at: ...`
-- each part repeats the same pattern under `## Part alignment`
-- no work on a part starts until that part plan is approved
+- the alignment surface (`## Goal` through `## Parts`) must be filled — no
+  `TBD` placeholder and no unreplaced `<...>` prompt remaining (HTML comments
+  are exempt) — before any cycle starts
+- `## Loop plan` carries `Pressure-tested: no | <timestamp> | skipped —
+  trivial plan` and `Approved: no | user <timestamp> | proxy <timestamp>`
+- each part block under `## Parts` carries its own `Approved:` line
+- no work on a part starts until that part is `current` and approved
 
 In delegated authority mode, a specialist proxy agent may approve a loop plan,
 approve a part plan, or choose a bounded route option under the authority the
 user recorded in `## Authority`. The parent agent still writes `loop.md` and
 must stop for the user if the goal, definition of done, non-negotiables,
 security/privacy/legal posture, destructive actions, external side effects,
-material cost, or public behavior outside the approved goal would change.
+material cost, or public behavior outside the approved goal would change — or
+when a loop would close without verify, proxies disagree, or a required proxy
+is missing.
 
 Loops may cover investigation, implementation, validation, and route
 corrections inside one adaptive lane. The canonical file layout, including the

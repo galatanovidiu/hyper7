@@ -1,422 +1,193 @@
 ---
 name: hyper
 description: >
-  The main Hyper workflow. Runs adaptive loops for development work where the route must evolve through contact with reality, and the goal may need probing before it is ready to commit. Each loop persists so sessions can resume without losing context. Use as the default entry point when the user wants to build, fix, iterate, course-correct mid-flight, probe before committing, or break a goal into adaptive slices. For rigid, fully-specified work that should run through fixed phases (intake → spec → technical-plan → execution-plan → implement → verify → docs), use the hyper-build skill instead. Keywords: hyper, iterate, loop, ooda, adaptive, probe, course correct, build, fix, feature.
+  Runs the main Hyper workflow: adaptive loops for development work where the route must evolve through contact with reality, and the goal may need probing before it is ready to commit. Each loop persists so sessions can resume without losing context. Use when the user wants to build, fix, iterate, course-correct mid-flight, probe before committing, or break a goal into adaptive slices — it is the default entry point. For rigid, fully-specified work that should run through fixed phases (intake → spec → technical-plan → execution-plan → implement → verify → docs), use the hyper-build skill instead. Keywords: hyper, iterate, loop, ooda, adaptive, probe, course correct, build, fix, feature.
 argument-hint: "[L<N>|new|<title>|.hyper/loops/... ]"
 ---
 
 # Hyper
 
-Run tracked adaptive work: observe, orient, decide, act, repeat. Use it for iterative or exploratory work — when the path should stay flexible, when the goal is known enough to start but still needs probing before commitment, or when contact with reality is likely to shift the route.
+Run tracked adaptive work as OODA loops — observe, orient, decide, act — with state persisted so any session can resume where the last one stopped.
 
 ## When to Use
 
-Reach for hyper when any of these match:
+Reach for hyper when the path, or the goal itself, must stay flexible: probing before committing, prototyping, splitting a big goal into adaptive parts, or multi-session work whose context must survive interrupts. User signals: iterate / explore / probe / experiment / pivot / course-correct verbs, or hedged uncertainty about the path ("not sure yet", "depends on what we find").
 
-- The goal is known enough to start, but the path is not, and the path should stay flexible.
-- The goal itself is still forming and needs probing before it can be committed.
-- Reality is likely to reshape the plan once work starts.
-- The work needs a throwaway probe or prototype before committing to a route.
-- A big goal needs to be split into adaptive parts, not a rigid plan.
-- The work will span multiple sessions and context must survive interrupts.
-- The user uses verbs like "iterate", "explore", "probe", "experiment", "investigate", "prototype", "figure out", "pivot", or "course-correct".
-- The user signals uncertainty about the path: "I'm not sure yet", "depends on what we find", "let me think through this", "this might change".
+## The Iron Law
 
-Use the phase gates below to decide whether the loop still fits.
+NO CYCLE BEFORE APPROVAL. NO `done` WITHOUT VERIFY.
+
+- A cycle runs only after the loop plan and the current part are approved (Align gate).
+- `status: done` requires a passing verify entry — or the user explicitly closing without verify.
+- Approval is an unambiguous literal yes to the plan just posted. Hedges ("sounds reasonable", "I guess") and silence are not approval — re-ask as a yes/no question. A materially edited plan needs fresh approval.
 
 ## The Process
 
-The workflow is four phases in order: Load and Route → Align → Cycle → Verify and Close. The phase sections below are the authority.
+Four phases, in order. The phase sections below are the authority.
 
-## Terminology
+1. **Load and Route** — probe state, resume or create a loop.
+2. **Align** — interview, plan, pressure-test, approve.
+3. **Cycle** — one evidence-backed move at a time, with zoom-out checkpoints.
+4. **Verify and Close** — tests, code review, docs, definition-of-done walk.
 
-- **Loop** — the whole tracked unit of work, persisted in `.hyper/loops/L<N>-<slug>/`.
-- **Loop plan** — the agreed top-level approach for the loop. Always written "loop plan" as a noun, "loop-plan" only as a noun modifier (e.g., "loop-plan summary").
-- **Part** — one bounded scope inside the loop. Numbered `P<N>`, append-only.
-- **Part plan** — the agreed approach for one part.
-- **Cycle** — one coherent observe-orient-decide-act move inside a part. Numbered `Cycle N`, append-only.
-- **Slice** — informal: any bounded unit of work that fits inside one cycle or one delegated child call. Not a separate persisted concept.
-- **Authority mode** — how direction-setting decisions are approved. `interactive` asks the user at gates. `delegated` uses the user's standing authority plus specialist proxy agents for bounded decisions.
-- **Verify entry** — one record of running the verify gate. Numbered `Verify N`, append-only.
+Terms: a **loop** is the whole tracked unit of work; a **part** (`P<N>`) is one bounded scope inside it; a **cycle** is one OODA move inside a part.
 
-## The Loop Artifact
+## The Loop File
 
-Each loop is a folder at `.hyper/loops/L<N>-<slug>/` containing:
+A loop lives at `.hyper/loops/L<N>-<slug>/loop.md` (structure: `templates/loop.md`), plus optional evidence files linked from `## Relevant artifacts`. Resolve paths from the probe's `state_root`; keep paths written into the file repo-relative.
 
-- `loop.md` — the canonical state file. See `templates/loop.md` for the full structure.
-- Optional evidence files (logs, diffs, screenshots, console output) referenced from `## Relevant artifacts`. Use kebab-case names: `cycle3-build-log.txt`, `verify2-2026-05-13.txt`.
+Event log + materialized view: `## Decisions`, `## Cycles`, and `## Verified outcomes` are append-only — entry numbers allocated max + 1, entries not rewritten; every other section is living state, overwritten as reality changes. Every mutation refreshes frontmatter `updated`. Timestamps: `YYYY-MM-DDTHH:MM:SS`.
 
-Path resolution uses the probe's `state_root` field (Phase 1 below makes the probe call). This aligns hyper with the shared state-root rule used by the rest of Hyper. Create `.hyper/loops/` under `state_root` if missing. Use absolute paths only for transient tool execution when the working directory differs from `state_root`; keep paths written into `loop.md` and user-facing summaries repo-relative.
-
-Use the exact section layout shipped in `templates/loop.md`.
-
-Behavior rules for that artifact:
-
-- Overwrite the current working view as reality changes.
-- Append to the chronological logs; do not rewrite them.
-- Set `created` and `updated` when the loop is created. After that, every mutation of `loop.md` refreshes `updated`.
-- Treat `## Starting point` as a single snapshot set when the loop is created. If a new loop continues learning from an earlier done loop, reference it there.
-- When `## Cycles` grows beyond 50 entries, move all but the most recent 30 to `cycles-archive.md` in the loop folder, leaving a one-line stub `### Cycle K — moved to cycles-archive.md` in `loop.md`. Hot/warm reads ignore the archive; cold reads may open it on demand.
-
-Timestamps use `YYYY-MM-DDTHH:MM:SS`.
+`TBD` is the only placeholder. Replace a section's `TBD` with its first real content; write `TBD` for anything genuinely unknown — never invent a different placeholder. If `## Cycles` grows unwieldy, move old entries to `cycles-archive.md` in the loop folder, leaving one-line stubs.
 
 ## Phase 1 — Load and Route
 
-Call the state probe once at session start:
+Run the state probe once at session start:
 
     node "<skill-base-dir>/../hyper-build/scripts/state.mjs"
 
-`<skill-base-dir>` is the path printed at skill load as "Base directory for this skill". The probe lives in the sibling `hyper-build` skill folder — `install-hyper` symlinks all Hyper skills side by side, so `../hyper-build/scripts/state.mjs` resolves from any sibling skill base. Parse the JSON output; route all subsequent decisions (state root, active loops, next loop id) from its fields. Do not re-scan folders or re-read individual `loop.md` frontmatter for routing or id allocation.
+`<skill-base-dir>` is printed at skill load; the probe lives in the sibling `hyper-build` skill (all Hyper skills install side by side). Route every state decision — state root, active loops, next loop id — from its JSON output; do not re-scan folders or re-read frontmatter for routing. If the probe errors, surface it and stop — likely a broken install.
 
-Get the current UTC timestamp in `YYYY-MM-DDTHH:MM:SS` format.
+Read `.hyper/rules.md` (project rules — normative when present) and, when the probe reports `learnings.exists: true`, `.hyper/memory/index.md` (recall hints; open entries on demand). Re-read both on every resume; if a current rule conflicts with the loop's recorded plan or decisions, surface the conflict and log the ruling in `## Decisions`.
 
-Use the probe's `active_loops` list as the inventory of loops with `status: active`; if the probe reports no loops, treat the project as having no loops yet.
-
-**Project rules.** Read `.hyper/rules.md` if it exists; treat as normative for the session. If absent, no project rules are in force. On every resume, re-read this file: if its content differs from when the loop was last touched (any prior cycle, decision, or rule reference in `loop.md` is now in tension with the current rules), surface the conflict to the user and append a `## Decisions` entry recording the new ruling before continuing the current cycle.
-
-**Learnings index.** When the probe reports `learnings.exists: true`, read `.hyper/memory/index.md` and treat its entries as recall hints; open individual entry files on demand when one looks relevant. Re-read the index on every resume, the same way as `rules.md`.
-
-When the loop needs a required capability from the registry below and no suitable skill is installed, tell the user which capability is missing and offer: install one, swap to a substitute for this loop, or stop. Never silently skip a required skill call. Suggested capabilities do not block the loop. **Conditional capabilities** (those marked `conditional` in the registry) are not checked at loop start; they are evaluated only at the phase that needs them. For example, `code-review` is evaluated only at Phase 4, and only after research-only detection has decided whether code changes exist.
-
-**Route.** Pick one:
-
-1. **Resume by id or path** — user named `L<N>` or gave a path inside `.hyper/loops/`.
-2. **Resume by title** — user named an existing loop clearly.
-3. **Resume the only active loop** — the probe's `active_loops` list contains exactly one entry.
-4. **Ask** — multiple active loops and the target is unclear.
-5. **Create** — otherwise.
-
-Multiple loops may exist in `status: active` at the same time (parallel work, paused loops, blocked loops). A session works on one loop at a time, chosen by the Route step. Switching loops mid-session means re-entering Phase 1.
-
-A loop with last-cycle `Next: pause` is treated as paused but still `status: active`. Frontmatter does not carry a separate `paused` value; the last cycle's `Next` is the only paused marker.
-
-Done loops are not reopened. If the user wants to keep going from a done loop, create a new one and reference it in `## Starting point`.
+**Route** — pick the first that applies: resume by id or path → resume by clear title → resume the only active loop → ask (multiple candidates, target unclear) → create. One loop per session at a time; switching loops re-enters Phase 1. A loop whose last cycle ended `Next: pause` is paused but still `status: active`. Done loops are never reopened — continue from one by creating a new loop that references it in `## Starting point`.
 
 **On create:**
 
-1. Use `next_loop_id` from the probe output.
-2. Pick a short title and kebab-case slug.
-3. Create `loop.md` from the template. Fill `id`, `title`, `status`, `created`, and `updated` immediately from the allocated loop metadata, replace the H1 with the allocated loop id and title, and write a one-time starting snapshot in `## Starting point` (replacing the shipped `- None yet.`). For anything still unknown, keep the placeholder already shipped for that section in `templates/loop.md`; do not invent new placeholder strings.
-4. Authority mode: if the user explicitly grants standing autonomy with "YOLO mode", "decide for me", "no approval interruptions", or equivalent, set `## Authority` `Mode: delegated`; summarize the granted scope in `Delegated authority`, name the proxy skills or agent roles in `Decision proxies`, and append a `## Decisions` entry recording the grant. Otherwise leave `Mode: interactive`, `Delegated authority: none`, and `Decision proxies: none`.
-5. Initial bar: the next approval gate. Default to "clear alignment by approving the loop plan and current part plan" if not stated.
-6. Write that bar into `## Current bar`, and append the first real entry to `## Bar history` as `- <creation timestamp> — Initial bar: <verbatim text of Current bar>`, replacing the shipped `- None yet.`.
-7. Initial parts: 2–5 meaningful parts when the work decomposes naturally, or use the single-part fallback `P1 — Whole goal — aligning`.
-8. Exactly one initial part is current (`aligning`). Any remaining initial parts start `todo`.
-9. For every part written under `## Parts`, clone the matching `P<N>` block under `## Part alignment`, and make each cloned `### P<N> — ...` heading mirror the part number and title from its corresponding part entry.
-10. Announce: `Created L<N> — <title>. Starting adaptive loop.`
+1. Take `next_loop_id` from the probe; pick a short title and kebab-case slug; create `loop.md` from the template, filling frontmatter and the H1.
+2. Write the one-time `## Starting point` snapshot, including the starting commit (`git rev-parse HEAD`).
+3. Authority: `delegated` only on an explicit grant ("YOLO mode", "decide for me", or equivalent) — record scope and proxies in `## Authority` plus a `## Decisions` entry. Otherwise `interactive`.
+4. Parts: 2–5 when the work decomposes naturally, else the single `P1 — Whole goal`. Exactly one part is `current`.
+5. Announce the created loop id and title in one line.
 
-**Before entering Phase 2**, verify the two creation-time obligations above are honored: `## Starting point` no longer contains `- None yet.`, and the first `## Bar history` entry begins with the creation timestamp, then ` — Initial bar: `, then the exact text now in `## Current bar`. Fix any miss before continuing.
+**On resume**, read in layers: hot (always) — `## Goal`, the `## Loop plan` status lines, the current part block, `## Handoff cues`, `## Evidence digest`. Warm (when the next move needs more) — remaining living state, last 3 cycles, latest verify entry. Cold (on demand) — older cycles, archive, artifact files.
 
-**On resume:** read `loop.md` in layers; do not reread the whole file by default.
+**Interrupt repair.** If the last cycle entry lacks `Next`, the session died mid-write. The one exception to append-only: complete that entry in place with what you know — prose fields may say `interrupted`; when the real next move is unknown, set `Next: back up`. Never start a new cycle over an incomplete one.
 
-- If the loop lacks current authority or approval fields, normalize the live sections before continuing: add `## Authority` with `Mode: interactive` unless the file already records standing delegated authority, and represent approvals as `Approval source` plus `Approved at`.
-- **Hot** (always): the pre-cycle alignment surface listed under the Phase 2 alignment gate below, plus `## Evidence digest` and the full `## Handoff cues` block (`Next atomic move`, `Current risk or uncertainty`, and `Dirty or unvalidated state`).
-- **Warm** (when the next move needs more): `## Starting point`, the decision log, the route-shift log, the bar-history log, `## Relevant artifacts`, the last 3 cycles (or fewer if the loop has fewer), the latest verify entry, and `## Outcome`.
-- **Cold** (on demand only): older cycles, `cycles-archive.md` if it exists, raw artifact files.
-
-**Mid-cycle interrupt recovery.** If the last entry under `## Cycles` is missing any of the canonical cycle fields after `Action` (`Evidence`, `Learning`, `Route impact`, `Next`), the previous session died mid-cycle. This is the one documented exception to the cycle-append-only rule: complete the partial cycle entry in place by appending the missing fields. If the work itself was not completed, set `Evidence: Interrupted before evidence captured`, `Learning: none — interrupted`, `Route impact: no change`, and `Next: back up`. Never start a new cycle while a prior cycle entry is incomplete.
-
-Promote durable signal upward as work progresses: timestamped route changes go to `## Route shifts`, load-bearing choices go to `## Decisions`, still-relevant findings go to `## Evidence digest`, and restart-critical notes go to `## Handoff cues`. In any section seeded with `- None yet.` or another empty-state sentinel, replace that sentinel with the first real entry.
-
-## Capability registry
-
-Resolve each capability call in this order: exact preferred skill name, then any installed skill whose description matches the fallback description. If multiple fallback matches exist, choose the closest match and record the choice in `## Decisions`.
-
-| Role | Required? | Preferred skill | Fallback description |
-|---|---|---|---|
-| pressure-test | required | `grill-me` | stress-tests a plan or decision tree |
-| decision-proxy | conditional (delegated authority, if a user gate or route checkpoint would otherwise stop) | `hyper-team` | gets a specialist decision or critique from another agent/model |
-| code-review | conditional (verify, if code changes) | `hyper-code-review` | reviews code changes and returns a verdict with findings |
-| docs | conditional (verify, if user-facing surface changed) | `hyper-docs` | updates user-facing documentation for the changed surface |
-| cross-model-review | suggested | `hyper-team` | gets critique from another model |
-
-Required values: `required` (block at loop start if missing) · `conditional (<phase>, if <trigger>)` (evaluated only at that phase) · `suggested` (never blocks).
-
-**Sub-agent invocation.** Required capabilities that interact with the user (notably `pressure-test`) are invoked through a sub-agent when one is available, not by interrupting the parent agent's session. The sub-agent walks the decision tree, returns the digest, and the parent folds the answers into `loop.md`. In `interactive` authority, the sub-agent runs the interview only; the explicit yes/no approval question (loop plan or part plan) is asked by the parent. In `delegated` authority, the parent may ask a decision-proxy sub-agent for the approval verdict under the standing authority rules below. When no sub-agent is available, fall back to direct user interview in `interactive` authority; in `delegated` authority, missing proxy support is a stop-for-user trigger.
-
-## Authority Modes
-
-`interactive` is the default. Ask the user for goal-shaping choices, loop-plan approval, part-plan approval, route-checkpoint choices, and close-without-verify choices.
-
-`delegated` is active only when the user explicitly grants standing authority with "YOLO mode", "decide for me", "no approval interruptions", or equivalent. Record the grant in `## Authority` before using it. Delegated authority changes who answers routine gates; it does not remove gates, evidence, pressure tests, or verify.
-
-In delegated authority, replace a user gate with a specialist proxy decision only when the choice stays inside the recorded goal, constraints, non-negotiables, and definition of done:
-
-1. Prepare a decision brief with context, concrete options, the recommended option, constraints, evidence, and the `Stop for user` triggers from `## Authority`.
-2. Invoke the most specific capability for the decision: `pressure-test` for plan challenge, `cross-model-review` for non-trivial route critique, `code-review` or `docs` in verify, and `decision-proxy` for approval or route choices not covered by another role.
-3. Require the proxy to return exactly one verdict: `approve`, `needs rework`, `choose <option>`, or `stop for user`, plus rationale, evidence used, confidence, and any stop trigger it saw.
-4. The parent records the proxy verdict in `## Decisions`, updates `Approval source: delegated authority` and `Approved at: <timestamp>` for approvals, and continues only if the verdict is clear.
-
-Stop for the user instead of delegating when the goal, why, definition of done, or non-negotiables would change; a destructive action, credential/security/privacy/legal risk, external side effect, or material cost appears; public contract or user-facing behavior would change outside the approved goal; close-without-verify is requested; required proxy support is missing; or proxies disagree in a way the parent cannot resolve from evidence.
+As work progresses, promote durable signal upward: load-bearing choices and route changes → `## Decisions`, still-relevant findings → `## Evidence digest`, restart-critical notes → `## Handoff cues`.
 
 ## Phase 2 — Align
 
-Alignment is an interview pass before any implementation. Walk these steps in order:
+An interview pass before any implementation:
 
-1. **Restate your understanding** of the request from the user (or from the Linear issue, GitHub issue, etc.). Write that restatement into `## Task understanding`.
-2. **Scan the project briefly** — relevant files, recent commits, README, related loops or tasks. Often the missing piece is already on disk.
-3. **Report what already exists** in the codebase and what looks missing or unclear. Write that into `## Existing code and findings`.
-4. **Capture the non-code alignment fields** — fill `## Why`, `## Constraints`, `## Non-negotiables`, and `## Definition of done` from what is already known or from the clarifications you gather here.
-5. **Settle the loop plan** with the user in `interactive` authority, or with a decision proxy in `delegated` authority, and agree how the work will be tackled.
+1. Restate the request and scan the project (relevant files, recent commits, related loops) — write `## Understanding`.
+2. Fill `## Goal`, `## Constraints`, `## Non-negotiables`, and `## Definition of done` from what is known plus the clarifications gathered here.
+3. Settle `## Loop plan` (approach, parts, key decisions, risks) and `## Route` with the user — or a decision proxy in delegated mode.
 
-In `interactive` authority, ask one question per message. Prefer multiple-choice when a structured-question tool is available; fall back to open-ended only when the choice space is genuinely open. When the question has two or more variants, mark exactly one as `[RECOMMENDED — <one-line reason>]`. The reason cites concrete signal (file on disk, existing decision, constraint, observed risk). If no variant is defensibly better, say so and ask the user to pick — do not invent a reason.
+Ask one question per message, and only what changes the loop: goal, hard constraints, plan shape, first part boundary. Every ask that presents options marks exactly one `[RECOMMENDED — <reason citing concrete signal>]`; if no option is defensibly better, say so and let the user pick. This rule applies to every question and approval ask in this skill.
 
-In `delegated` authority, use the same question shape as the decision brief for the proxy. Ask the user only when a `Stop for user` trigger applies or the proxy returns `stop for user`.
+**Pressure test.** A plan is **non-trivial** when it spans multiple parts, adds an external dependency, changes a public contract, or makes a hard-to-reverse decision. Non-trivial plans require a pressure test before approval: invoke the pressure-test capability (see Capabilities), preferring a sub-agent to run the interview and return a digest; fold the answers into the plan and set `Pressure-tested: <ts>`. Trivial plans record `Pressure-tested: skipped — trivial plan`. Non-trivial plans also get an offer of cross-model review (`hyper-team`), outcome logged in `## Decisions` — the user may decline; in delegated mode invoke it without asking. If review changes the plan, re-run the pressure test.
 
-Only ask what changes the loop: goal, destination, hard constraints, non-negotiables, loop-plan shape, and the first part boundary. Skip details the loop will discover later.
+**Post and ask.** Write the agreed plan into the file — including `## Route` and the first `## Handoff cues` next move — post a concise summary in chat (goal, approach, parts, key decisions, risks), then ask for approval per Authority. On approval set `Approved: user <ts>` (or `proxy <ts>`). On rejection set `Approved: no`, log the reason in `## Decisions`, rework the disputed area, re-post, re-ask. Rework that materially changes the plan re-runs the pressure test (and the non-triviality check) before the re-ask. The plan only exists once the file is written and the summary has been seen.
 
-**Pressure-test the loop plan.** Before approval, invoke the pressure-test capability from the registry above to walk the loop plan decision tree. Prefer a sub-agent invocation when one is available; the sub-agent runs the interview and returns the digest. Fold answers into `## Loop plan` and `## Decisions`, then set `Pressure-tested at` to the timestamp the pressure-test concluded. This is mandatory; "continue without it" is **not** a valid choice when no suitable pressure-test skill is installed. Offer only: install one, swap to a substitute pressure-test skill for this loop, or stop.
+**Gate.** Cycles start when: the alignment surface (`## Goal` through `## Parts` in the template) contains no `TBD` and no unreplaced `<...>` prompt (HTML comments are exempt); the loop plan's `Pressure-tested` is a timestamp or the recorded skip; the current part's `Pressure-tested` is resolved (a timestamp or `covered by loop plan`); and the loop plan and the current part both show `Approved: user|proxy <ts>`.
 
-When the loop plan is non-trivial, also resolve the cross-model-review capability from the registry above to get an external model critique of the loop plan before approval. Suggested, not required. Resolve `External review` using these rules:
-
-- Trivial plan → `n/a — trivial loop plan`. Other branches are not reachable from a trivial plan.
-- Non-trivial plan and no installed skill matches the capability → `n/a — no cross-model-review skill installed`. Continue without blocking alignment.
-- Non-trivial plan, `interactive` authority, a matching skill exists, user accepts → invoke it, then set `completed by a cross-model-review skill`. Fold the result into `## Loop plan` or `## Decisions`. If the external review changes the loop plan, re-run the pressure test on the changed plan before approval.
-- Non-trivial plan, `interactive` authority, a matching skill exists, user declines → `skipped by user`.
-- Non-trivial plan, `delegated` authority, a matching skill exists → invoke it without asking the user, then set `completed by a cross-model-review skill`. Fold the result into `## Loop plan` or `## Decisions`. If the external review changes the loop plan, re-run the pressure test on the changed plan before approval.
-
-A loop plan is **non-trivial** when any of the following holds: it touches more than one part, it introduces a new external dependency, it changes a public contract, or it makes a decision the user cannot easily reverse. If none of these hold, the plan is trivial.
-
-**Post and ask** — fixed order:
-
-1. Write the agreed loop plan into `## Loop plan`. Status remains `awaiting approval`; `Approval source: Not yet.` and `Approved at: Not yet.`.
-2. Write the initial `## Current route` from the agreed route hypothesis, the initial `## Current focus` from the active part plus next concrete move, and `## Handoff cues` `Next atomic move` from the first cycle's intended move.
-3. Post a concise loop-plan summary in chat — goal and destination, approach, parts, key decisions, open risks.
-4. Seek approval. In `interactive` authority, ask the user explicitly. In `delegated` authority, invoke a decision proxy with the plan summary and the `## Authority` boundaries. State the recommended action and a one-line reason in the form `[RECOMMENDED — <reason>]`, where the reason cites concrete signal from the loop plan (a tradeoff resolved, a constraint honored, a risk dropped). The same rule applies to every part-plan approval ask or delegated decision brief.
-5. On approval only: set `Status: approved`, `Approval source: user | delegated authority`, and `Approved at: <timestamp>`. Plan status uses `awaiting approval | approved | needs rework`.
-
-The plan only exists in the agent's head until the file is written and the user has seen the chat-rendered summary.
-
-**What counts as approval.** In `interactive` authority, approval is a message from the user that, taken literally, is an unambiguous affirmative directed at the plan just posted — e.g., `approve`, `approved`, `yes`, `go ahead`, `ok do it`, `lgtm`, `ship it`, `proceed`. Anything hedging (`looks fine`, `I guess`, `maybe`, `sounds reasonable`, `interesting`) is not approval; ask again as a yes/no question. Silence is not approval.
-
-In `delegated` authority, approval is a decision-proxy verdict of exactly `approve`, returned against the posted plan and recorded in `## Decisions`. A proxy verdict of `needs rework` follows the rework path. A proxy verdict of `stop for user` opens a user gate. Approval expires when the plan is materially edited afterward — re-ask the user or re-run the proxy according to authority mode. The same definition applies to part-plan approval and to any rework re-approval.
-
-**Alignment gate.** Before the first cycle, `loop.md` must show the pre-cycle alignment surface filled: `## Authority`, `## Goal`, `## Why`, `## Constraints`, `## Non-negotiables`, `## Definition of done`, `## Task understanding`, `## Existing code and findings`, `## Loop plan`, `## Current route`, `## Current focus`, `## Current bar`, `## Handoff cues` `Next atomic move`, the current part under `## Parts`, and the current part block under `## Part alignment`.
-
-"Filled" means none of the shipped placeholder strings (`Not stated yet.`, `Not filled yet.`, `- None stated.`, `- None yet.`, `Not agreed yet.`, `Not yet.`) and no unreplaced angle-bracket template prompts (`<...>`) remain in the alignment surface. Instructional HTML comments are exempt.
-
-`## Authority` is filled when `Mode: interactive` keeps `Delegated authority: none` and `Decision proxies: none`, or when `Mode: delegated` has concrete non-`none` values for both fields plus the `Stop for user` boundaries.
-
-The loop-level gate is cleared when, and only when: the pre-cycle alignment surface is filled, `Pressure-tested at` is a timestamp, `External review` is resolved (any value other than `Not yet.`), `Status: approved`, `Approval source` is `user` or `delegated authority`, and `Approved at` is a timestamp.
-
-The current-part block is cleared when, and only when: the part-block fields (`#### Understanding`, `#### Existing code and findings`, the `- Goal:` / `- Approach:` / `- Dependencies and risks:` bullets) are filled with no placeholders; `Part pressure test` is resolved (any value other than `Not yet.`); `Status: approved`; `Approval source` is `user` or `delegated authority`; and `Approved at` is a timestamp. When the part block is cleared, flip the part's status under `## Parts` from `aligning` to `doing` together with the write that records the approval, following the multi-section transition rule in Operating rules — both writes complete in the same agent turn so the file never crosses a session boundary half-flipped.
-
-No cycle starts before both gates are cleared.
-
-**On `needs rework`:**
-
-1. Set loop-plan `Status: needs rework`, reset `Approval source: Not yet.`, and reset `Approved at: Not yet.`.
-2. Return to step 5 of the outer Phase 2 steps ("Settle the loop plan") and re-run it for the disputed area.
-3. Update the loop-plan block with the user's feedback. Append the reason and decision to `## Decisions`.
-4. Rerun the pressure test on the branches the rework touched.
-5. If the rework changes a contract or dependency, re-run the non-triviality check and resolve `External review` again.
-6. Refresh the loop-plan metadata and re-post the plan summary.
-7. Switch `Status` back to `approved` only after fresh approval from the user or delegated proxy.
-
-**Per-part alignment.** Reuse the loop-level alignment flow for each part, with these adjustments:
-
-1. Write the part-level restatement into `#### Understanding` and the part-level scan and findings into `#### Existing code and findings`.
-2. Part blocks have no `External review` field; that bookkeeping does not carry over.
-3. Run the part pressure test only when the part introduces a new external dependency, a new data shape, a new user-visible surface, or any decision not resolved by the loop-level pressure test. Otherwise set `Part pressure test: covered by loop pressure test <timestamp of loop pressure test>`.
-4. Dependencies recorded under `- Dependencies and risks:` must form a DAG over `P<N>` ids. If adding a part would create a cycle in the dependency graph, surface it to the user and ask which dependency to break before approving the part plan.
-5. Part-plan `Status` uses the same values as loop-plan status (`awaiting approval | approved | needs rework`).
-6. Before work on `P<N>` starts, the part block must meet the current-part-block gate above: no placeholders, `Part pressure test` resolved, `Status: approved`, `Approval source` set to `user` or `delegated authority`, and `Approved at` set to a timestamp.
-7. On rework: set `Status: needs rework`, reset `Approval source: Not yet.` and `Approved at: Not yet.`, and only switch back to `approved` after fresh approval from the user or delegated proxy.
+**Parts.** Each part block carries its own goal, approach, risks, and `Approved:` line. In a single-part loop, loop-plan approval covers P1 — record the same approval on both. A later part is aligned and approved when it becomes current, informed by what earlier parts taught. A part needs its own pressure test only when it adds a new dependency, data shape, or user-visible surface; otherwise record `covered by loop plan`.
 
 ## Phase 3 — Cycle
 
-Cycles start only after the loop plan is approved and the current part plan is approved. One cycle = one coherent move. Run one cycle at a time unless the user asks for a batch. A loop may close after a single cycle if that cycle ends `Intent: stop` + `Next: close` and the verify gate clears; there is no minimum cycle count.
+One cycle = one coherent move, recorded per the entry shape in `templates/loop.md`. Run one at a time unless the user asks for a batch. A loop may close after a single cycle; there is no minimum.
 
-Allocate the next cycle number by scanning existing `### Cycle N —` headings under `## Cycles` and taking max + 1. Cycle numbers are append-only.
+1. Read or run just enough to see the next useful move.
+2. Pick an Intent: `probe | implement | validate | reroute | reframe | stop`.
+3. Make the smallest meaningful move — smallest meaningful, not smallest possible.
+4. Capture Evidence exactly (large output → save as an artifact file, keep the decisive excerpt inline; do not paraphrase away the signal).
+5. Record Learning — what the evidence changed. Refresh `## Route`, `## Handoff cues`, and part statuses as reality shifts.
+6. Set Next: `continue | back up | split | pause | close | reframe`.
 
-Use the canonical cycle-entry shape in `templates/loop.md`. Write fields in the exact order shown; do not reorder, rename, or omit.
+Intent rules:
 
-For each cycle:
+- `implement` — production change on the approved current part. Dispatch to a sub-agent by default for multi-file or risky slices (see Delegation); the parent may edit directly for small bounded changes — the Evidence requirement holds either way.
+- `reroute` — same goal, new route: overwrite `## Route` and log a `route:` entry in `## Decisions`.
+- `reframe` — the goal changed: update `## Goal`, set `Next: reframe`, and re-run Phase 2 before any further cycle. A reframe voids approvals — the loop plan and every non-`done` part reset to `Approved: no` and `Pressure-tested: no`; `done` parts stand unless the user explicitly reopens one (log it in `## Decisions`). Re-approval may be brief but is never inherited from the old goal.
+- `stop` — pause (loop stays `active`; write `## Handoff cues` — `Next atomic move` is the move the *next* session should take, including prerequisites like branch or env, plus current risk and dirty state) or close via `Next: close`.
 
-1. Read or run only enough to see the next useful move.
-2. Record what matters now and what you expected before the move.
-3. Choose one Intent: `probe | implement | validate | reroute | reframe | stop`.
-   - `probe` — answer a design or reality question before commitment.
-   - `implement` — production change on an approved part. Requires the current part `Status: approved` (and part status `doing`).
-   - `validate` — check current work or route without closing.
-   - `reroute` — same goal, different route. Also update `## Current route` and append to `## Route shifts`.
-   - `reframe` — goal changed. Also update `## Goal` and `## Why`, set `Next: reframe`, and re-run the Phase 2 alignment gate before any further cycle. On reframe re-entry to Phase 2, always reset the loop plan: set `Status: needs rework`, reset `Approval source: Not yet.`, reset `Approved at: Not yet.`, and reset `Pressure-tested at: Not yet.` (the prior pressure test was against the old goal). Reset every part whose `## Parts` status is `aligning` or `doing` and whose part-plan `Status` is `approved`: set part-plan `Status: needs rework`, reset `Approval source: Not yet.`, reset `Approved at: Not yet.`, and reset `Part pressure test: Not yet.`. Parts whose `## Parts` status is `done` are left as-is by default (their completed work stays recorded). If the new goal invalidates a `done` part's completed work, the user can explicitly request that part be reopened — that follows the verify-remediation path (`done → doing` transition) and must be recorded in `## Decisions`. If the agent judges that a still-active part's scope still fits the new goal, the re-approval can be brief, but it must happen — the prior approval was against the old goal and cannot be inherited.
-   - `stop` — pause, block, or close. The loop stays `status: active` when pausing or blocked. A close handoff uses the pair `Intent: stop` + `Next: close`.
-4. Take the smallest meaningful move that advances that intent — smallest meaningful, not smallest possible.
-5. Capture the exact result. If raw output is large, save it inside the loop folder, keep the decisive excerpt in the cycle, and link the file from `## Relevant artifacts`. Record evidence verbatim where practical; do not paraphrase away the signal. For `implement` cycles, capture Evidence as the diff range as `file:line-line` plus one of: a passing existing test that covers the change, a manual verification command and its output, or a screenshot/log.
-6. Record what the evidence changed about the prior belief, the route, the parts, or the risks. Then explicitly assess whether the goal is still the right goal. In `interactive` authority, ask the user if that is unclear. In `delegated` authority, ask a decision proxy unless a `Stop for user` trigger applies. If the answer is no, the next intent must be `reframe`, not `reroute`.
-7. Refresh the living state. `## Current focus` holds the active part and the next concrete move. Update it every cycle, and whenever the active part or immediate next move changes.
-8. Set `Next` based on the immediate next move: `continue | back up | split | validate | pause | close | reframe`. Meanings:
-   - `continue` — another cycle on the current route.
-   - `back up` — return to an earlier phase or assumption.
-   - `split` — this cycle stopped to open a new part; the part block has been written and is awaiting approval. The next cycle will run on that new part once its part-block gate clears.
-   - `validate` — next cycle uses the `validate` intent.
-   - `pause` — stop with the loop still `status: active`.
-   - `close` — hand off into Phase 4.
-   - `reframe` — goal changed and Phase 2 alignment must re-run before any further cycle.
+**Splits and part handover.** To open a new part: end the cycle with `Next: split`, append a part block (`P<max+1>`, status `todo`, `Approved: no`), then align and approve it before any cycle runs on it. It becomes `current` when the prior part finishes — or immediately if work is redirecting, in which case the displaced part goes back to `todo` (its `Approved:` line stands) or to `done` if its remaining scope moved into the new part; say which in the cycle's Learning. One new part per split cycle. When the current part's goal is met, flip it `done` and promote the next part in the same turn; if none remain, head to close. Exactly one part is `current` from creation until the loop closes — the final part flips `done` in the closing cycle. `done → current` reopening happens only via verify remediation or an explicit user decision, logged in `## Decisions`.
 
-   **Intent × Next compatibility:**
-   - `Intent: reframe` forces `Next: reframe`.
-   - `Intent: stop` forces `Next: pause | close`.
-   - `Next: split` is allowed only when `Intent` is `probe | implement | validate | reroute` (the cycle did real work and the result was "we need a new part written before the next cycle"). The part-opening procedure in step 10 always uses `Next: split`; there is no separate `Intent: split` shortcut, so approval of the new part plan is never bypassed.
-9. Keep `## Parts` and `## Part alignment` in sync. See Operating rules for the single-current-part invariant. Transitions:
-   - `todo → aligning` — a `todo` part becomes current and its part-plan `Status` is `awaiting approval` (the plan needs interview/approval before implementation).
-   - `todo → doing` — a `todo` part becomes current and its part-plan `Status` is already `approved` (typical for split-created parts: the plan was approved in the split cycle, and the part stayed `todo` until promoted to current). The promotion is a single atomic write inside `## Parts` (no `## Part alignment` change happens at this moment — approval was recorded earlier), bundled with the prior current part's flip to `done` per the rule below.
-   - `aligning → doing` — the part-block gate clears (part-plan `Status` flips to `approved`).
-   - `doing → done` — the part is finished.
-   - `done → doing` — permitted only when (a) Phase 4 verify-triggered remediation needs the part reopened, or (b) the user explicitly requests reopening a `done` part during a reframe (per the Phase 3 reframe rules). In both cases, append a `## Decisions` entry naming the trigger, and apply the same single-atomic-write rule (touching `## Parts` and the `## Decisions` entry) so an interrupted session never observes a half-flipped state.
+**Zoom-out checkpoints.** The pull to finish the next cycle is strongest exactly when the route is wrong. Stop and check when any trigger fires:
 
-   When one part finishes and another becomes current, flip the previous part to `done` and the next part to either `aligning` or `doing` (per the rules above) in the same agent turn, following the multi-section transition rule in Operating rules — do not leave the loop file at a session boundary with zero current parts. If a part finishes and no `todo` part exists, the loop either opens a new part via step 10 or closes via `Next: close`; do not leave the loop with zero current parts.
-10. **Opening a new part.** If the next move opens a new part, set `Next: split` (with `Intent` set to whatever this cycle actually did per the compatibility matrix in step 8), stop, and write the new part. Allocate the new part number as max(existing `P<N>`) + 1; never reuse numbers. Insert the new part entry in `## Parts` at the position the user requests; the default is the end of `## Parts` (so consecutive splits append in numeric order — surface this to the user if a different position is wanted). The current part keeps its status during the split cycle; the new part's `## Parts` status starts at `todo`. Clone a part-alignment block for the new part with `Status: awaiting approval`. Open exactly one new part per split cycle — if multiple parts are needed, run consecutive split cycles and get user or delegated approval on each part plan before opening the next. Re-enter Phase 3 only after the new part plan is approved. When that part later becomes current, the appropriate `## Parts` transition is `todo → doing` (the part-plan `Status` is already `approved` from the split cycle).
-11. **Revising an existing part plan.** If the next move revises an existing part plan, set `Next: back up`, stop, set that part's `Status: needs rework`, reset `Approval source: Not yet.`, reset `Approved at: Not yet.`, refresh the part block, and re-enter the per-part alignment flow. Re-enter Phase 3 only after the revised plan is approved.
-12. **When `Next: pause`.** Write `## Handoff cues` `Next atomic move` as the move the *next* session should take, not the move that just happened. Include any state-restoration prerequisites (branch, uncommitted files, env). Update `Dirty or unvalidated state` accurately.
-13. Refresh handoff cues whenever the next atomic move or current risk changes.
-14. On the first real cycle entry, replace `_No cycles yet._`. Then append the cycle entry and refresh frontmatter `updated`.
+- three cycles completed in the current part since the last checkpoint;
+- two consecutive cycles ended `back up`;
+- a reroute landed that the user (or proxy) did not explicitly choose;
+- the next move is a split;
+- the user hints at a pivot ("what about…", "wait", "I'm not sure", naming a different goal in passing) — treat it as a reframe signal until proven otherwise; never absorb it silently as a plan tweak.
 
-**Zoom-out checkpoints.** A loop can drift even when each cycle looks productive. The pull to finish the next cycle is strong; the point of zoom-out is precisely that pull is strong even when the route is wrong. Pause and surface the bigger picture whenever any of these triggers fires:
-
-- Three cycles have completed inside the current part since the last checkpoint (cadence — catches slow drift).
-- The cycle just written has `Route impact` not equal to `no change`.
-- Two consecutive cycles ended `Next: back up`.
-- The next planned move is `Next: split` — opening a new part deserves a pause before adding scope.
-- A user message hints at pivot: hedging language, "what about", "wait", "I'm not sure", or naming a different goal in passing.
-
-At a checkpoint, the agent must:
-
-1. Stop further cycle work.
-2. Post a chat message using the Chat output shape, with the body containing: where the loop is now, what was believed when the current part started, what the evidence has actually shown since, and three possible next directions (continue on the current route, reroute, reframe).
-3. In `interactive` authority, ask the user which direction to take, marking one as `[RECOMMENDED — <one-line reason>]` per the Phase 2 question rule. In `delegated` authority, send the same options to a decision proxy unless a `Stop for user` trigger applies.
-4. Record the answer or proxy verdict in `## Decisions` with a timestamp before resuming cycle work. If the answer is `reroute`, also append to `## Route shifts`. If `reframe`, follow the Phase 3 reframe path in step 3 of the cycle list.
-
-Checkpoints are not optional. "The next cycle is almost done" is not a reason to skip one.
-
-If the bar or route changes, update the living value **and** append a one-line entry to `## Bar history` or `## Route shifts` with timestamp and reason. Use `## Decisions` only for load-bearing choices.
-
-Part statuses: `todo | aligning | doing | done`.
+At a checkpoint, post (chat shape): where the loop is, what was believed when the part started, what the evidence has shown since, and three directions — continue, reroute, reframe. Ask per Authority; log the ruling in `## Decisions`. Checkpoints are not skippable — "the next cycle is almost done" is the failure mode, not a reason.
 
 ## Phase 4 — Verify and Close
 
-Phase 4 starts on one of two triggers: **(a)** Phase 3 ends with the closing handoff pair `Intent: stop` + `Next: close` (because the destination is reached or because the user explicitly wants to close the loop after at least one cycle ran), or **(b)** the user explicitly abandons the loop before any cycle has run — see "Pre-cycle abandonment" below. A paused or blocked loop stays `status: active` and does not enter Phase 4. Phase 4 runs a single hard gate: the verify gate. The loop cannot flip to `status: done` without a passing entry in `## Verified outcomes`, unless the user explicitly chooses to close without verify.
+Entered by the closing pair `Intent: stop` + `Next: close`, or by user-explicit abandonment at any point (→ close-without-verify branch). Paused and blocked loops stay `active` and do not enter Phase 4.
 
-**Pre-cycle abandonment** (trigger b). If the user explicitly abandons the loop before any cycle has run (alignment never cleared, or the user gives up mid-Phase-2), run the "On user-explicit close without verify" branch below in full. No `Intent: stop` + `Next: close` cycle is required because no cycles exist; the abandonment itself replaces the closing handoff pair. When that branch's step 5 writes the close-without-verify-only lines, use `Close-without-verify reason: abandoned before alignment cleared` (or the user's exact reason) and `Unfinished items: <what was being aligned at the moment of abandonment>`. The branch's step 1 dirty-state check still runs — the default `Dirty or unvalidated state: none` is a real value, not a placeholder, and is the expected reading on a loop that ran no cycles.
+First detect research-only loops: `git diff` against the starting commit in `## Starting point`. No code changes → tests and code review record their `n/a` alternates and the review capability is skipped.
 
-**Detect research-only loops.** Before running the checks, run `git diff` against the loop's starting commit (or `git status` if no starting commit is tracked) inside the project. If no code changes are present, the loop is research-only for verify purposes: skip the code-review capability call and treat the Tests check accordingly (see below).
+**Run four checks**, recorded as a `Verify N` entry (shape in `templates/loop.md`):
 
-**Run all four checks:**
+1. **Tests** — run the project's suite; capture command, exit code, decisive excerpt (full log → artifact).
+2. **Code review** — invoke `hyper-code-review` on the loop's diff; record verdict and top findings.
+3. **Docs** — if user-facing surface changed (CLI, UI, API, public functions, advertised behavior), invoke `hyper-docs`; else `n/a`.
+4. **DoD walk** — every `## Definition of done` line: `met | not met | n/a`, each citing evidence already recorded in the loop (file:line, test name, artifact, or log entry). Evidence is cited, never invented at verify time.
 
-1. **Tests.** Re-run the project's test suite. Capture the exact command, exit code, and a decisive excerpt. Link the full log under `## Relevant artifacts` if large. Legal alternates when no test run applies: `n/a — no test suite in project` or `n/a — research-only loop, no code changes`.
-2. **Code review.** Invoke the code-review capability from the registry above on the loop's full diff. Record the verdict (`pass | needs-changes | blocked`) and top findings. On a research-only loop (empty diff), record `n/a — research-only loop, no code changes` and skip the capability call.
-3. **Docs.** If the loop changed user-facing surface (CLI, UI, API, public functions, behavior advertised to users), invoke the docs capability from the registry above. Otherwise record `n/a — no user-facing surface change`.
-4. **Definition of done.** Walk every line in `## Definition of done`. Record each line as `met | not met | n/a`, backed by concrete evidence. Evidence cites a source the file already contains, in one of these shapes: `file:line` (or `file:line-line`), `test: <test name>`, `artifact: <relative path under Relevant artifacts>`, `Decisions: <verbatim first 8 words of the decision title>`, `Evidence digest: <verbatim digest bullet>`, or `Cycle N <field>: <verbatim excerpt>`. The cited entry must already exist in `loop.md` at verify time; do not invent evidence inline.
+**Result: pass** → set `status: done`, write `Close summary` (result + material tradeoffs) and `Verify link: Verify N`, post a closing chat summary.
 
-Missing-skill handling matches Phase 2: if required code review is missing on a loop with code changes, or required docs support is missing when the loop changed user-facing surface, "continue without it" is **not** a valid choice. Offer install, swap for this loop, or stop.
+**Result: partial | fail** → loop stays `active`. Run remediation cycles against the named failures — reopen a `done` part if that is where the failure lives, logging it — then append a fresh `Verify N+1` — re-entry is direct, no closing pair needed. The re-review may scope to the remediation diff; tests re-run in full. Do not edit `## Definition of done` to make a failure pass without explicit user approval.
 
-**Record verification** using the `## Verified outcomes` entry shape in `templates/loop.md`. Allocate `Verify N` as max(existing `Verify N`) + 1; verify entries are append-only and never rewritten, even after remediation. The overall verify `Result` is `pass | partial | fail`. The verify entry's `Follow-up` field (legal values: `stop and close | remediation cycle to fix <what>`) is the verify-level analogue of the cycle's `Next` — it is a separate field with separate values, so cycle and verify logs stay grep-distinguishable. On the first real verify entry, replace `_No verify runs yet._`. Whenever verification runs, set `Verify link` in `## Outcome` to `Verify N` for the latest verify entry. Leave `Close summary: Not finished yet.` until the loop actually closes.
+**Close without verify** — user-explicit only ("drop it", "good enough", "abandon"): check `Dirty or unvalidated state`; if anything other than `none`, ask — commit, stash, discard, or leave for the next loop — and record the choice. Then set `status: done`, write a real `Close summary`, `Verify link: n/a`, and the close-without-verify lines from the template.
 
-**On `Result: pass`:**
+## Authority
 
-1. Set frontmatter `status: done`.
-2. Put the achieved result and any material tradeoffs into `Close summary`.
-3. Set `Verify link: Verify N` for the passing entry.
-4. Post a short closing summary in chat (result, what was verified, handoffs the next session needs).
-5. Stop.
+`interactive` (default): the user answers goal-shaping choices, plan approvals, checkpoint directions, and close-without-verify.
 
-**On `Result: partial` or `Result: fail`:**
+`delegated`: active only on an explicit recorded grant — `Delegated authority` and `Decision proxies` carry concrete non-`none` values. It changes who answers routine gates — it removes no gate, evidence requirement, pressure test, or verify. Any user gate in this skill may then be answered by a decision proxy (per `Decision proxies`, typically `hyper-team`): send a brief — context, options, recommendation, constraints, evidence, the `Stop for user` list — and require exactly one verdict: `approve | needs rework | choose <option> | stop for user`, with rationale. Log verdicts in `## Decisions`; approvals record as `Approved: proxy <ts>`. Anything on the `Stop for user` list (in the template) always goes to the user, as does proxy disagreement or missing proxy support.
 
-1. Leave frontmatter `status: active`.
-2. Return to Phase 3 and run a remediation cycle that fixes the specific failures named in this verify entry. If the failing scope lives in a part whose `## Parts` status is `done`, flip that part to `doing` for the remediation (one of the two permitted `done → doing` triggers; see step 9) and append a `## Decisions` entry recording the verify-triggered reopen. The part must already have an approved part plan; remediation does not require a new part-block approval. Flip it back to `done` when the remediation cycle finishes.
-3. If the remediation reveals the fix requires a new part (not just changes inside the reopened part), the remediation cycle may end `Next: split` and open a new part via step 10. The reopened part stays `doing` until either the remediation completes inside it, or all the work moves into the new part — at which point flip the reopened part back to `done` and let the new part take over as current.
-4. Re-enter the verify gate (this produces a new `Verify N+1` entry; do not rewrite the failing one).
-5. Do not edit `## Definition of done` to make a failure go away unless the user explicitly approves changing the scope.
-6. **User abandons remediation.** If the user explicitly chooses to give up on the loop rather than remediate ("drop it", "abandon", "good enough"), open one more cycle with `Intent: stop` + `Next: close`, then re-enter Phase 4 and take the close-without-verify branch below. The failed verify entry stays in place; do not delete or rewrite it.
+## Capabilities
 
-**On user-explicit close without verify** — the user can close the loop before the verify gate passes ("I'm dropping this", "good enough", "abandon this loop"):
+| Role | When required | Skill |
+|---|---|---|
+| pressure-test | Align, non-trivial plan | `grilling` — or any installed skill that stress-tests a plan |
+| code-review | Verify, code changed | `hyper-code-review` |
+| docs | Verify, user-facing surface changed | `hyper-docs` |
+| cross-model review / decision proxy | suggested; required for delegated-mode approvals | `hyper-team` |
 
-1. Read `## Handoff cues` `Dirty or unvalidated state`. If anything other than `none`, surface it to the user and ask: commit, stash, discard, or leave for the next loop. Record the user's choice in `Close summary`.
-2. Set frontmatter `status: done`.
-3. Write a real `Close summary`.
-4. Set `Verify link: n/a`.
-5. Add the close-without-verify-only lines from `templates/loop.md`: `Close-without-verify reason: <reason>` and `Unfinished items: <what still matters>`.
-6. Skip the verify gate. This is a deliberate user choice, not a verify-gate pass.
+A required capability that is missing is never silently skipped: offer install, substitute for this loop, or stop. Log substitutions in `## Decisions`.
 
-## Delegation to Sub-Agents
+## Delegation
 
-When sub-agents are available, the parent may delegate a bounded slice within a cycle (recon, research, focused validation, adversarial review, pressure-test interviews, one-part implementation, delegated-authority decisions). The parent still owns the loop file, state transitions, and integration of evidence. In `delegated` authority, a child may make a bounded route or approval decision only through the Authority Modes contract above.
+Delegate bounded slices — clear input, output, and stop condition: recon, focused validation, adversarial review, pressure-test interviews, one part's implementation. Keep with the parent: phase transitions, all `loop.md` writes, gate state, user approvals in interactive mode, and anything needing the loop's accumulated context. One writer per code path.
 
-**Delegate when:**
+Implement dispatch — give the child: the slice, a writes boundary (files it may touch), the Evidence requirement, and read-only context. Take back: a diff summary, Evidence, and any blocker — `scope question` (parent resolves, re-dispatches) or `route conflict` (next cycle is `reroute`, or `reframe` if the goal broke). Children return text; the parent writes the cycle entry. A child that returns nothing usable: record that as the Evidence, then tighten and redelegate, or take the move directly.
 
-- The task has a clear input, output, and stop condition.
-- Fresh context will find different things than the parent's accumulated context (recon, second-opinion review).
-- Multiple bounded slices can run in parallel without touching the same code path.
-- A required capability that interviews the user (e.g., `pressure-test`) needs to run without interrupting the parent's session.
+## Chat Output
 
-**Do not delegate:**
-
-- The whole loop. Phase transitions, alignment writes, gate state changes, and route-state updates stay with the parent.
-- Anything that needs the loop's accumulated context.
-- User approval moments in `interactive` authority — the user's explicit approval of a loop plan or part plan reaches the parent, not a child.
-- Decisions outside the recorded delegated authority or matching a `Stop for user` trigger.
-
-**Rules:**
-
-- Children never mutate `loop.md` directly. They return text; the parent writes the cycle entry and refreshes living state.
-- One writer at a time for implementation on the same code path. Two children racing on the same files produces incoherent diffs.
-- Each delegation has a clear input, output, and stop condition. "Look at the codebase and figure things out" is too open; "find every call site of `Foo.bar` and report each as file:line with context" is bounded.
-- If a child returns nothing useful (empty, off-topic, or below the stop condition), record the cycle's `Evidence` as `Delegation returned no usable output: <one-line reason>`, set `Next: validate` or `Next: back up`, and decide whether to redelegate with tighter inputs or take the move directly.
-
-**Implement-cycle dispatch contract.**
-
-Every `Intent: implement` cycle that writes or edits code is dispatched to a sub-agent, with one carveout: a trivial single-edit move (one or two lines, no behavior change — typo, comment fix, single-symbol rename inside already-approved scope) may be made by the parent directly and recorded as the cycle's `Action`. If the runtime has no sub-agent capability, the parent writes code directly; the Evidence requirement on cycle step 5 still holds.
-
-The parent retains read access throughout the cycle: running commands, reading files, and verifying user claims (per the user-claim verification rule in Operating rules) stay with the parent and do not require dispatch.
-
-Input the parent gives the child:
-
-- Slice description — the move to make, derived from the current part plan and the cycle's intended `Action`.
-- Writes boundary — the files or paths the child may modify, scoped to the current part.
-- Evidence required — diff range plus one of: passing test, manual command + output, or screenshot/log (matches cycle step 5).
-- Read-only context — files the child may read but not modify, plus relevant excerpts from the current part block.
-
-Return the child gives the parent:
-
-- Diff summary — file-grouped notes on what changed.
-- Evidence — captured in one of the forms above.
-- Blocker, if any — one of: `scope question` (the slice needs a file outside the writes boundary or a clarification) or `route conflict` (the slice cannot succeed because the route assumption is broken). Empty if the slice landed cleanly.
-
-The parent writes the cycle entry from the child's return; the child never reads or writes `loop.md`. On a returned `scope question`, the parent resolves the question (asks the user or widens the writes boundary deliberately) before re-dispatching. On a returned `route conflict`, the next cycle's `Intent` is `reroute` if the goal still holds, or `reframe` if it does not.
-
-## Chat output shape
-
-Every chat reply the agent posts during a loop opens with this five-line block, then the detail below. The block is the headline a project-owner reader gets at a glance; file paths, diffs, and tool output belong beneath it for anyone who wants to dig.
+At every meaningful moment — cycle report, approval ask, checkpoint, route shift, verify summary, close — open with:
 
 ```
 **Done:** <one line — concrete action and outcome>
-**Why:** <one line — how this advances the loop's goal, not just the cycle's intent>
-**Where we are:** <part + phase + status: running | paused | awaiting approval | blocked | done>
+**Why:** <one line — how this advances the loop goal, not the cycle intent>
+**Where we are:** <part + phase + status>
 **Risk or surprise:** <one line, or `none`>
 **Needs from you:** <decision | approval | info | nothing — continuing>
 ```
 
-Rules:
+One line per field; state empties explicitly (`none`, `nothing — continuing`). Plain questions during the Align interview skip the block — one clear question beats boilerplate.
 
-- One line per field. No bullet lists inside the block.
-- If a field has nothing to report, state that explicitly (`none`, `nothing — continuing`). Do not omit the line.
-- `Why` links to the loop goal, not the cycle intent. "Probing whether option A holds" is the cycle intent. "Option A is the cheapest path to the destination, so the loop hinges on it" is the loop-goal why.
-- `Where we are` cites the active part id and the phase, e.g. `P2 — Phase 3, mid-cycle 4` or `P1 — Phase 2 alignment, awaiting plan approval`.
-- `Needs from you` is the only field that may resolve to `nothing — continuing`. If anything else is true — a decision is open, an approval is pending, a zoom-out checkpoint is firing — name it.
-- The block applies to every chat message during a loop: cycle reports, approval asks, zoom-out checkpoint asks, route-shift surfacing, verify summary, close summary. The only exception is the bare creation announcement at Phase 1 step 10, which keeps its existing one-line form.
+## Red Flags — STOP
 
-## Operating rules
+| You're thinking | Reality |
+|---|---|
+| "Sounds good" means approved | Hedges are not approval → re-ask as yes/no. |
+| The checkpoint can wait one cycle | That pull is the drift → run it now. |
+| I'll fold the pivot in and keep going | Pivot = reframe signal → surface it; re-align if the goal moved. |
+| I remember the evidence, I'll cite it at verify | Evidence must already be recorded → it is in the file or it does not count. |
+| Editing the DoD makes verify pass | Scope changes need the user → ask first. |
+| The user is wrong about that bug | Test the claim first: run it, show exactly what was run and observed, invite correction. A survived pressure test earns no immunity from fresh evidence. |
+| Work is done, flip it to `done` | No `done` without a passing verify entry — or the user's explicit close. |
 
-Cross-cutting invariants. Phase-specific behavior lives in the phase sections above; this list is the short reference.
+## Quick Reference
 
-- Resolve capability bindings at loop start. Required missing capabilities block; conditional capabilities are evaluated only at the phase that needs them; suggested missing capabilities do not block. Never silently skip a required call.
-- One writer at a time per code path. Append-only logs (`## Bar history`, `## Route shifts`, `## Decisions`, `## Cycles`, `## Verified outcomes`) are never rewritten — except for the documented mid-cycle interrupt recovery in Phase 1, which completes one partial cycle entry in place. Living-state sections (`## Authority`, `## Goal`, `## Why`, `## Constraints`, `## Non-negotiables`, `## Definition of done`, `## Loop plan`, `## Current route`, `## Current focus`, `## Current bar`, `## Parts`, `## Part alignment`, `## Evidence digest`, `## Handoff cues`, `## Outcome`) are overwritten in place.
-- **Multi-section transition rule.** Some transitions in this skill say "single atomic write" or "same write" when they touch two sections of `loop.md` (e.g., flipping a part `aligning → doing` updates both `## Part alignment` and `## Parts`). The safety the rule guarantees is: the file never crosses a session boundary or a user interrupt in a half-flipped state. Implementation: complete both writes within a single agent turn. Either use Write to rewrite the whole file in one call, or use two consecutive Edit calls in the same turn — the file may be transiently inconsistent between those two tool calls, but it must never be left inconsistent when the turn ends or the agent yields control. Do not split a multi-section transition across turns.
-- **Single-current-part invariant.** Exactly one part is `aligning` or `doing` while the loop is between Phase 2 alignment and Phase 4 close. The other parts are `todo` or `done`. The invariant may transiently hold "all parts done" only between the moment a part flips to `done` and the next atomic write that either (a) flips a `todo` to `aligning` or (b) writes `Next: close`. Two parts in `aligning` simultaneously is never allowed; multi-part planning happens sequentially.
-- When the user pivots mid-loop ("actually, I'm thinking about X", "what if we tried Y"), treat it as a goal-reframe signal until proven otherwise. Stop the current cycle, surface the pivot, and re-run the alignment gate if the goal shifted. Do not silently absorb the pivot as a part-plan tweak.
-- **User-claim verification.** When the user states something is broken, wrong, missing, or different from what the agent believes, test the claim before disagreeing. Run the command, read the file, inspect the state. If the test result contradicts the user, do not dismiss. Report: the exact command run, the files read with paths and line ranges, what the agent observed. Then ask: "Is the test you wanted me to do different from what I did?" Never tell the user their claim is wrong without showing the test work and inviting correction. This rule overrides any anchoring from a prior pressure-test or grilling pass — surviving a grilling does not make a plan or belief immune to evidence the user can see now.
-- Done loops are never reopened. If continued work is needed, create a new loop and reference the closed one in `## Starting point`.
-- No `status: done` without a passing verify entry, unless the user explicitly closes scope without verify.
-- When a durable learning surfaces during a loop, record it in `.hyper/memory/` per the contract in `../hyper-memory/reference/memory.md`, writing the entry inline rather than invoking the `hyper-memory` skill.
-- Legal values inlined throughout this skill mirror `templates/loop.md`. If either changes, update the other.
+- Loop status: `active | done` — paused = last cycle `Next: pause`, still `active`.
+- Part status (in the heading): `todo | current | done` — exactly one `current`; work needs `current` + approved.
+- Intent: `probe | implement | validate | reroute | reframe | stop` · Next: `continue | back up | split | pause | close | reframe` · pairings: reframe → reframe, stop → pause | close.
+- Approval: `Approved: no | user <ts> | proxy <ts>` — literal yes only; material edits reset it.
+- Verify result: `pass | partial | fail` — entries append-only, remediation appends `Verify N+1`.
+- Entry shapes and field-level legal values live in `templates/loop.md`; behavior lives here.
+- Durable learnings: write inline to `.hyper/memory/` per the contract in `../hyper-memory/reference/memory.md`.

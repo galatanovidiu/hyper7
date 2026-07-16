@@ -62,9 +62,9 @@ from `~/.claude/settings.json` if an earlier Hyper version registered one.)
 
 Hyper depends on a few external skills hosted at
 [mattpocock/skills](https://github.com/mattpocock/skills). The most important
-one for `hyper` is `grill-me`, which pressure-tests the loop plan and
-each part plan before approval. Install those skills alongside Hyper if you
-intend to use the adaptive workflow.
+one for `hyper` is `grilling`, which pressure-tests non-trivial loop plans
+before approval. Install those skills alongside Hyper if you intend to use
+the adaptive workflow.
 
 For delegated `hyper` runs, install a decision-proxy skill such as
 `hyper-team` too. In YOLO mode, Hyper uses specialist agents for bounded
@@ -87,7 +87,7 @@ is still forming and needs probing before commitment:
 | Phase                | Purpose                                                                                                                                              |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Load and Route`     | Resume the right loop or create a new one. Re-check project rules and capability bindings.                                                           |
-| `Align`              | An alignment pass: restate the request, scan the codebase, agree the **loop plan** and current **part plan**, then pressure-test before user or delegated approval. |
+| `Align`              | An alignment pass: restate the request, scan the codebase, agree the **loop plan** and current **part plan**, then pressure-test non-trivial plans before user or delegated approval. |
 | `Cycle`              | One coherent observe → orient → decide → act move at a time. Each cycle picks an intent and an evidence-backed next step.                            |
 | `Verify and Close`   | Run tests, code review, docs check, and definition-of-done check. The loop flips to `done` only on a passing verify entry.                           |
 
@@ -132,11 +132,12 @@ Resume later:
   verify1-2026-05-14.txt
 ```
 
-`loop.md` is the canonical state file. It carries goal, why, constraints,
-definition of done, loop plan, current route, current focus, current bar,
-parts, part alignment, evidence digest, cycles (append-only), verify entries
-(append-only), and outcome. Optional evidence files (logs, diffs, screenshots)
-live next to it and are referenced from `## Relevant artifacts`.
+`loop.md` is the canonical state file. It carries goal, constraints,
+definition of done, loop plan, route, parts (each with its own approval),
+evidence digest, handoff cues, decisions (append-only), cycles (append-only),
+verify entries (append-only), and outcome. Optional evidence files (logs,
+diffs, screenshots) live next to it and are referenced from
+`## Relevant artifacts`.
 
 ### Terminology
 
