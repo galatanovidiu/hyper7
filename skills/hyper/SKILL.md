@@ -98,7 +98,7 @@ One cycle = one coherent move, recorded per the entry shape in `templates/loop.m
 Intent rules:
 
 - `implement` — production change on the approved current part. Dispatch to a sub-agent by default for multi-file or risky slices (see Delegation); the parent may edit directly for small bounded changes — the Evidence requirement holds either way.
-- `reroute` — same goal, new route: overwrite `## Route` and log a `route:` entry in `## Decisions`.
+- `reroute` — same goal, new route: overwrite `## Route` and log a `route:` entry in `## Decisions` with the reason for the change.
 - `reframe` — the goal changed: update `## Goal`, set `Next: reframe`, and re-run Phase 2 before any further cycle. A reframe voids approvals — the loop plan and every non-`done` part reset to `Approved: no` and `Pressure-tested: no`; `done` parts stand unless the user explicitly reopens one (log it in `## Decisions`). Re-approval may be brief but is never inherited from the old goal.
 - `stop` — pause (loop stays `active`; write `## Handoff cues` — `Next atomic move` is the move the *next* session should take, including prerequisites like branch or env, plus current risk and dirty state) or close via `Next: close`.
 
@@ -129,7 +129,7 @@ First detect research-only loops: `git diff` against the starting commit in `## 
 
 **Result: pass** → set `status: done`, write `Close summary` (result + material tradeoffs) and `Verify link: Verify N`, post a closing chat summary.
 
-**Result: partial | fail** → loop stays `active`. Run remediation cycles against the named failures — reopen a `done` part if that is where the failure lives, logging it — then append a fresh `Verify N+1` — re-entry is direct, no closing pair needed. The re-review may scope to the remediation diff; tests re-run in full. Do not edit `## Definition of done` to make a failure pass without explicit user approval.
+**Result: partial | fail** → loop stays `active`. Run one or more remediation cycles against the named failures — reopen a `done` part if that is where the failure lives, logging it — then re-enter the verify gate and append a fresh `Verify N+1` entry. The re-review may scope to the remediation diff; tests re-run in full. Do not edit `## Definition of done` to make a failure pass without explicit user approval.
 
 **Close without verify** — user-explicit only ("drop it", "good enough", "abandon"): check `Dirty or unvalidated state`; if anything other than `none`, ask — commit, stash, discard, or leave for the next loop — and record the choice. Then set `status: done`, write a real `Close summary`, `Verify link: n/a`, and the close-without-verify lines from the template.
 

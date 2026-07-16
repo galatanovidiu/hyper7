@@ -63,8 +63,8 @@ TBD
 <!-- Part numbers are append-only: next = max(existing P<N>) + 1. Work on a part requires status `current` AND `Approved: user|proxy <ts>`. -->
 
 ### P1 — Whole goal — current
-Pressure-tested: covered by loop plan
-<!-- covered by loop plan | no | <YYYY-MM-DDTHH:MM:SS> — a part needs its own test when it adds a new dependency, data shape, or user-visible surface -->
+Pressure-tested: no
+<!-- no | <YYYY-MM-DDTHH:MM:SS> | covered by loop plan — a part needs its own test when it adds a new dependency, data shape, or user-visible surface; otherwise the loop-level test may cover it. -->
 Approved: no
 - Goal: TBD
 - Approach: TBD
@@ -72,8 +72,8 @@ Approved: no
 
 ## Decisions
 <!-- Single append-only log for load-bearing choices, rulings, and route changes. -->
-<!-- Entry shape: `- <YYYY-MM-DDTHH:MM:SS> — <entry>`. Prefix route changes with `route:` and include the reason. Replace the TBD with the first real entry. -->
-- TBD
+<!-- Entry shape: `- <YYYY-MM-DDTHH:MM:SS> — <entry>`. Prefix route changes with `route:` and include the reason. Replace this line with the first real entry. -->
+_No decisions yet._
 
 ## Evidence digest
 <!-- Living list: still-relevant findings promoted from cycles. -->
