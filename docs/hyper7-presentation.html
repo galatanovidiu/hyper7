@@ -753,7 +753,9 @@
     <div class="grid-2">
       <pre>hyper7E/
 ├── skills/
-│   ├── hyper/           ← master orchestrator
+│   ├── hyper/             ← OODA loop (default entry)
+│   ├── hyper-build/       ← phased task router
+│   │     └── scripts/state.mjs   ← shared state probe
 │   ├── hyper-intake/
 │   ├── hyper-spec/
 │   ├── hyper-technical-plan/
@@ -761,10 +763,12 @@
 │   ├── hyper-implement/   ← dispatches workers
 │   ├── hyper-worker/      ← one subtask
 │   ├── hyper-verify/
-│   ├── hyper/     ← OODA loop
+│   ├── hyper-docs/
+│   ├── hyper-memory/      ← durable learnings
+│   ├── hyper-digest/      ← scannable output
 │   ├── hyper-jira/        ← Jira integration
 │   ├── hyper-sync/        ← team sync
-│   └── ... (10 more)
+│   └── ... (11 more)
 ├── scripts/
 │   └── deploy.sh          ← symlinks to all agents
 └── evals/                 ← evaluation harnesses
@@ -776,7 +780,7 @@ skills/hyper-intake/
 └── reference/      ← reference material on demand</pre>
       <div style="display:flex; flex-direction:column; gap:16px;">
         <div class="card">
-          <div style="font-size:11px; color:var(--violet); font-weight:700; letter-spacing:1px; margin-bottom:8px;">21 SKILLS</div>
+          <div style="font-size:11px; color:var(--violet); font-weight:700; letter-spacing:1px; margin-bottom:8px;">25 SKILLS</div>
           Each a folder with SKILL.md + optional templates/ and reference/. The agent reads SKILL.md to know what to do.
         </div>
         <div class="card">
@@ -996,7 +1000,7 @@ node hyper7E/scripts/validate-hyper.mjs
       <div class="grid-2" style="max-width:760px; margin:0 auto; text-align:left;">
         <div class="card">
           <div style="font-size:11px; color:var(--violet); font-weight:700; letter-spacing:1px; margin-bottom:8px;">REPO</div>
-          hyper7E/skills/ — 21 skill folders
+          hyper7E/skills/ — 25 skill folders
         </div>
         <div class="card">
           <div style="font-size:11px; color:var(--teal); font-weight:700; letter-spacing:1px; margin-bottom:8px;">DOCS</div>
