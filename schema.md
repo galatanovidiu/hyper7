@@ -122,7 +122,7 @@ review → done
   repo.md                  # Team sync remote config (opt-in, presence activates sync)
   rules.md                 # Normative project rules
   recipes/                 # Project-local reusable procedures
-  loops/                   # Adaptive work logs (hyper-iterate)
+  loops/                   # Adaptive work logs (hyper)
 ```
 
 ## Epic Model
@@ -293,7 +293,8 @@ written_at: 2026-05-14T10:30:00
 | `hyper-retro` | Retrospectives |
 | `hyper-code-review` | Diff/PR review |
 | `hyper-recipe` | Recipe management |
-| `hyper-iterate` | Adaptive OODA loops |
+| `hyper` | Adaptive OODA loops (default entry point) |
+| `hyper-build` | Phased task workflow |
 | `hyper-jira` | Jira integration — import, comment, status transitions |
 | `hyper-team` | Second-opinion delegation |
 | `hyper-sync` | Team sync |

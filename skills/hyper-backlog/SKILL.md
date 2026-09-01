@@ -8,8 +8,13 @@ description: >
 
 Manage `.hyper/backlog.md`, the idea inbox before work becomes a task.
 
-Resolve the Hyper state root per `../hyper/reference/state-root.md`. Apply the
-shared triage heuristic in `../hyper/reference/intake-triage.md`.
+Call the state probe once at session start:
+
+    node "<skill-base-dir>/../hyper-build/scripts/state.mjs"
+
+`<skill-base-dir>` is the path printed at skill load as "Base directory for this skill". The probe lives in the sibling `hyper-build` skill folder — `install-hyper` symlinks all Hyper skills side by side, so `../hyper-build/scripts/state.mjs` resolves from any sibling skill base. Parse the JSON output; route all subsequent decisions (state root, backlog entries, next backlog id, next task id) from its fields. Do not re-scan folders or `backlog.md` for ids.
+
+The probe implements `../hyper-build/reference/state-root.md`. Apply the shared triage heuristic in `../hyper-build/reference/intake-triage.md`.
 
 ## Backlog format
 
@@ -21,8 +26,7 @@ shared triage heuristic in `../hyper/reference/intake-triage.md`.
 <idea body>
 ```
 
-Allocate new backlog ids by scanning existing `B<N>` headings and adding 1.
-Dropped ids are not reused.
+Use `next_backlog_id` from the probe output. Dropped ids are not reused.
 
 ## Add
 
@@ -34,24 +38,24 @@ Dropped ids are not reused.
 
 ## List
 
-Show each backlog id and title, with a one-line summary when useful.
+Show each entry from the probe's `backlog_entries` (id and title), with a one-line summary when useful.
 
 ## Promote
 
 Convert a backlog entry into a deferred task.
 
-1. Resolve the requested `B<N>` or topic. Do not guess on ambiguous matches.
-2. Allocate the next task id by scanning `.hyper/tasks/` and `.hyper/archive/`.
+1. Resolve the requested `B<N>` or topic against the probe's `backlog_entries`. Do not guess on ambiguous matches.
+2. Use `next_task_id` from the probe output.
 3. Create `.hyper/tasks/T<M>-<slug>/task.md` from the Hyper task template with:
    - `phase: deferred`
    - `scope: unknown`
    - `bugfix: false`
    - `awaiting: null`
-4. Seed `dashboard.md` from `../hyper/templates/dashboard.md`.
+4. Seed `dashboard.md` from `../hyper-build/templates/dashboard.md`.
 5. Remove the backlog entry.
 6. Report: `Promoted B<N> -> T<M> — <title> (deferred).`
 
-Do not invoke `hyper` or start the intake phase yourself.
+Do not invoke `hyper-build` or start the intake phase yourself.
 
 ## Drop
 

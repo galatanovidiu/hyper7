@@ -8,15 +8,19 @@ description: >
 
 Manage task state without running the workflow.
 
-Resolve the Hyper state root per `../hyper/reference/state-root.md` before
-reading or writing `.hyper/` paths. Read `../hyper/reference/data-model.md`
-before changing task state.
+Call the state probe once at session start:
+
+    node "<skill-base-dir>/../hyper-build/scripts/state.mjs"
+
+`<skill-base-dir>` is the path printed at skill load as "Base directory for this skill". The probe lives in the sibling `hyper-build` skill folder — `install-hyper` symlinks all Hyper skills side by side, so `../hyper-build/scripts/state.mjs` resolves from any sibling skill base. Parse the JSON output and route all subsequent decisions (state root, active tasks, next task id) from its fields. Do not re-scan folders or re-read individual `task.md` frontmatter for routing or id allocation.
+
+The probe implements `../hyper-build/reference/state-root.md`. Read `../hyper-build/reference/data-model.md` before changing task state.
 
 ## Operations
 
 ### List
 
-List active and deferred tasks from `.hyper/tasks/` with:
+List entries from the probe's `active_tasks` whose `category` is `active` or `deferred`, with:
 
 - id
 - title
@@ -24,11 +28,11 @@ List active and deferred tasks from `.hyper/tasks/` with:
 - scope
 - awaiting
 
-Also show `epic` when present in the task's frontmatter. Only include the epic
-field when at least one active task has an `epic:` field set; when no tasks have
-an epic, the output is unchanged.
+Also show `epic` when the probe reports it (`active_tasks[*].epic`). Only
+include the epic field when at least one active task has a non-null `epic`;
+when no tasks have an epic, the output is unchanged.
 
-Do not list archived tasks unless the user asks.
+Do not list archived tasks unless the user asks; archived entries live in the probe's `archived_tasks` list.
 
 ### Status
 
@@ -59,26 +63,22 @@ Artifacts of interest:
 
 Create a tracked task the user does not want to start yet.
 
-1. Determine the next task id by scanning folder names in `tasks/ ∪ archive/`.
-   Extract the task number using either pattern:
-   - `T(\d+)-.*` — unenrolled task (capture the T number)
-   - `E\d+T(\d+)-.*` — epic-enrolled task (capture the T number, not the E number)
-   Take the highest captured number and add 1.
+1. Use `next_task_id` from the probe output.
 2. Derive a short title and slug.
 3. Draft the task body from the user's request and optionally carry over a
    `## Why` section when the request already contains a clear motivation.
 4. Create `.hyper/tasks/T<N>-<slug>/task.md` from
-   `../hyper/templates/task.md`, using the drafted body and:
+   `../hyper-build/templates/task.md`, using the drafted body and:
    - `phase: deferred`
    - `scope: unknown`
    - `bugfix: false`
    - `awaiting: null`
-5. Seed `dashboard.md` from `../hyper/templates/dashboard.md`, filling `## Goal`
+5. Seed `dashboard.md` from `../hyper-build/templates/dashboard.md`, filling `## Goal`
    from the task body and leaving other computed sections as placeholders.
-6. Report: `Created T<N> — <title> (deferred). Invoke hyper T<N> when ready.`
+6. Report: `Created T<N> — <title> (deferred). Invoke hyper-build T<N> when ready.`
 
 Do not start the workflow. Deferred tasks enter `intake` only when the user
-starts them through `hyper`.
+starts them through `hyper-build`.
 
 ### Defer
 

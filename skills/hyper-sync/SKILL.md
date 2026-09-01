@@ -12,7 +12,7 @@ description: >
 # hyper-sync
 
 Sync `.hyper/` with a shared team repository. Before anything else, resolve
-the Hyper state root per `../hyper/reference/state-root.md`. All `.hyper/`
+the Hyper state root per `../hyper-build/reference/state-root.md`. All `.hyper/`
 paths are relative to that root.
 
 Read the user's request and pick exactly one operation: `init`, `clone`,

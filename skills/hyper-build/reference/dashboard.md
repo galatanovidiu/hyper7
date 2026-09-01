@@ -109,7 +109,7 @@ Missing data emits `_not yet written_` for `Goal`, `Plan`, and `Progress`, and
 
 ## Regeneration triggers
 
-`hyper` regenerates `dashboard.md`:
+`hyper-build` regenerates `dashboard.md`:
 
 1. after task creation
 2. after every phase return, after applying the verdict and any phase

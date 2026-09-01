@@ -11,10 +11,10 @@ You are in the **intake** phase. Capture the request clearly enough for the
 user to confirm that Hyper is solving the right problem before solutioning
 begins.
 
-Resolve the Hyper state root per `../hyper/reference/state-root.md` before
+Resolve the Hyper state root per `../hyper-build/reference/state-root.md` before
 reading or writing `.hyper/` paths. The data model is in
-`../hyper/reference/data-model.md`. The gate contract is in
-`../hyper/reference/gates.md`.
+`../hyper-build/reference/data-model.md`. The gate contract is in
+`../hyper-build/reference/gates.md`.
 
 ## Inputs
 
@@ -25,7 +25,7 @@ reading or writing `.hyper/` paths. The data model is in
 
 - `01-intake.md`
 - `task.md` frontmatter updates to `scope` and `bugfix`
-- A verdict to `hyper`
+- A verdict to `hyper-build`
 
 ## Flow
 
@@ -51,7 +51,7 @@ reading or writing `.hyper/` paths. The data model is in
 - Prefer `feature` when in doubt.
 - `feature` covers both user-facing features and large internal refactors.
 - `quick` is still tracked work; if the task should not be tracked at all, that
-  decision belongs to `hyper` top-level triage before this phase begins.
+  decision belongs to `hyper-build` top-level triage before this phase begins.
 - `bugfix: true` changes the downstream lane but not the `scope`.
 
 ## Writing `01-intake.md`
@@ -77,7 +77,7 @@ When returning `awaiting-approval`, tell the user exactly what to review:
 - When classification settles a non-obvious call (scope vs scope, or
   `bugfix: true|false` against a hybrid request), append a
   `## Decisions` entry to `dashboard.md` per
-  `../hyper/reference/dashboard.md` §Decisions log contract, authoring
+  `../hyper-build/reference/dashboard.md` §Decisions log contract, authoring
   as `intake`.
 
 ## Return contract

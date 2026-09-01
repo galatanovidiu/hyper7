@@ -489,9 +489,9 @@
     <div class="grid-2">
       <div class="card" style="border-color:var(--violet);">
         <div style="font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--violet); margin-bottom:8px;">PHASED</div>
-        <div style="font-size:28px; font-weight:800; margin-bottom:4px;">hyper</div>
+        <div style="font-size:28px; font-weight:800; margin-bottom:4px;">hyper-build</div>
         <div style="color:var(--muted); margin-bottom:16px; font-size:15px;">For stable direction up front</div>
-        <pre style="font-size:13px; padding:12px 16px;">/hyper Add a login page</pre>
+        <pre style="font-size:13px; padding:12px 16px;">/hyper-build Add a login page</pre>
         <ul style="margin-top:16px;">
           <li>Linear phase sequence with approval gates</li>
           <li>Worker subtask orchestration</li>
@@ -500,9 +500,9 @@
       </div>
       <div class="card" style="border-color:var(--teal);">
         <div style="font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--teal); margin-bottom:8px;">ADAPTIVE</div>
-        <div style="font-size:28px; font-weight:800; margin-bottom:4px;">hyper-iterate</div>
+        <div style="font-size:28px; font-weight:800; margin-bottom:4px;">hyper</div>
         <div style="color:var(--muted); margin-bottom:16px; font-size:15px;">For evolving direction</div>
-        <pre style="font-size:13px; padding:12px 16px;">/hyper-iterate Investigate slow reports</pre>
+        <pre style="font-size:13px; padding:12px 16px;">/hyper Investigate slow reports</pre>
         <ul style="margin-top:16px;">
           <li>OODA loop: Observe → Orient → Decide → Act</li>
           <li>Intent-typed cycles (probe, implement, reroute…)</li>
@@ -716,7 +716,7 @@
   <!-- SLIDE 13: OODA -->
   <div class="slide" id="s13">
     <div class="chip teal">ADAPTIVE WORKFLOW</div>
-    <h2>hyper-iterate — OODA Loop</h2>
+    <h2>hyper — OODA Loop</h2>
     <div class="grid-2">
       <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;">
         <div style="display:flex; align-items:center; gap:0;">
@@ -761,7 +761,7 @@
 │   ├── hyper-implement/   ← dispatches workers
 │   ├── hyper-worker/      ← one subtask
 │   ├── hyper-verify/
-│   ├── hyper-iterate/     ← OODA loop
+│   ├── hyper/     ← OODA loop
 │   ├── hyper-jira/        ← Jira integration
 │   ├── hyper-sync/        ← team sync
 │   └── ... (10 more)
@@ -796,8 +796,8 @@ skills/hyper-intake/
     <div class="chip">HOW IT WORKS</div>
     <h2>The Agent IS the Runtime</h2>
     <div style="max-width:760px; width:100%;">
-      <div class="step-row"><div class="step-num">1</div> User types <code>/hyper Add a login page</code></div>
-      <div class="step-row"><div class="step-num">2</div> Agent loads <code>skills/hyper/SKILL.md</code></div>
+      <div class="step-row"><div class="step-num">1</div> User types <code>/hyper-build Add a login page</code></div>
+      <div class="step-row"><div class="step-num">2</div> Agent loads <code>skills/hyper-build/SKILL.md</code></div>
       <div class="step-row"><div class="step-num">3</div> SKILL.md: read <code>.hyper/</code> state → determine current phase → load phase skill</div>
       <div class="step-row"><div class="step-num">4</div> Phase skill executes, writes artifact, returns verdict</div>
       <div class="step-row"><div class="step-num">5</div> Master skill reads verdict → gate or advance to next phase</div>
@@ -816,10 +816,10 @@ skills/hyper-intake/
       <table>
         <thead><tr><th>Command</th><th>What it does</th></tr></thead>
         <tbody>
-          <tr><td><code>/hyper &lt;request&gt;</code></td><td>Start structured work</td></tr>
-          <tr><td><code>/hyper T3</code></td><td>Resume task T3</td></tr>
-          <tr><td><code>/hyper-iterate &lt;goal&gt;</code></td><td>Start adaptive loop</td></tr>
-          <tr><td><code>/hyper-iterate L2</code></td><td>Resume loop L2</td></tr>
+          <tr><td><code>/hyper-build &lt;request&gt;</code></td><td>Start structured work</td></tr>
+          <tr><td><code>/hyper-build T3</code></td><td>Resume task T3</td></tr>
+          <tr><td><code>/hyper &lt;goal&gt;</code></td><td>Start adaptive loop</td></tr>
+          <tr><td><code>/hyper L2</code></td><td>Resume loop L2</td></tr>
           <tr><td><code>/hyper-task list</code></td><td>See all active tasks</td></tr>
         </tbody>
       </table>
@@ -973,7 +973,7 @@ node hyper7E/scripts/validate-hyper.mjs
       </div>
       <div class="card" style="border-color:var(--violet);">
         <div style="font-size:11px; color:var(--violet); font-weight:700; letter-spacing:1.5px; margin-bottom:10px;">WHAT</div>
-        Phased + adaptive workflows, 21 skills, all state as markdown
+        Phased + adaptive workflows, 25 skills, all state as markdown
       </div>
       <div class="card" style="border-color:var(--teal);">
         <div style="font-size:11px; color:var(--teal); font-weight:700; letter-spacing:1.5px; margin-bottom:10px;">HOW</div>
@@ -981,7 +981,7 @@ node hyper7E/scripts/validate-hyper.mjs
       </div>
       <div class="card" style="border-color:var(--muted);">
         <div style="font-size:11px; color:var(--muted); font-weight:700; letter-spacing:1.5px; margin-bottom:10px;">USE</div>
-        /hyper, /hyper-iterate, plus 8 supporting commands
+        /hyper, /hyper-build, plus 8 supporting commands
       </div>
     </div>
     <div style="text-align:center; padding:20px 40px; background:rgba(108,99,255,0.1); border:1px solid rgba(108,99,255,0.3); border-radius:12px; font-size:19px; max-width:800px;">
