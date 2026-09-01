@@ -318,8 +318,8 @@ silently mangled.
 
 **Loops — read in place via a compat contract.** Upstream's CHANGELOG calls the
 rebuild "breaking for in-flight loops" and ships no migration; `state-recovery.md`
-has zero loop coverage. 15 pre-rewrite loop files were found on disk, 4 still
-`active`. Their frontmatter is unchanged, so the probe lists them normally, but
+has zero loop coverage. 21 pre-rewrite loop files were found on disk, 6 still `active`
+(4 of those with recorded cycles). Their frontmatter is unchanged, so the probe lists them normally, but
 the body differs in nine sections and in all gate fields.
 
 Rather than migrate user data, `skills/hyper/reference/legacy-loops.md` is the
@@ -328,8 +328,14 @@ writing without restructuring the file. The important part is that an
 already-approved legacy part clears the gate on its recorded approval alone —
 work the user approved is never re-approved just because the layout changed.
 
+An earlier pass reported 15 files. That was an undercount: both scans used
+`find -maxdepth 7`, which silently excluded a project nested one level deeper
+(`Work/Bot/Conta/conta`, six loops). Re-running without a depth limit found 21.
+The coverage result was unchanged — zero unmapped sections either way — but the
+lesson is that a depth-limited scan is not evidence of absence.
+
 The contract was written against the real files, and two of its claims were
-corrected by them: `## Starting point` turned out to be present in 14 of the 15
+corrected by them: `## Starting point` turned out to be present in 20 of the 21
 loops (the first draft said it was usually absent), and the only gate values that
 actually occur are `Status: approved` / `Approval source: user` and
 `Status: awaiting approval` / `Approval source: Not yet.`. A coverage pass
