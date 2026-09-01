@@ -28,9 +28,9 @@ List entries from the probe's `active_tasks` whose `category` is `active` or `de
 - scope
 - awaiting
 
-Also show `epic` when present in the task's frontmatter. Only include the epic
-field when at least one active task has an `epic:` field set; when no tasks have
-an epic, the output is unchanged.
+Also show `epic` when the probe reports it (`active_tasks[*].epic`). Only
+include the epic field when at least one active task has a non-null `epic`;
+when no tasks have an epic, the output is unchanged.
 
 Do not list archived tasks unless the user asks; archived entries live in the probe's `archived_tasks` list.
 

@@ -43,6 +43,9 @@ const USER_FACING_HYPER = new Set([
   "hyper-short-story",
   "hyper-digest",
   "hyper-memory",
+  "hyper-jira",
+  "hyper-sync",
+  "hyper-help",
 ]);
 
 const INTERNAL_HYPER = new Set([
@@ -230,7 +233,7 @@ function validateReadmeAndDataModel() {
   ensureContains(README, "Workflow 1 — `hyper` (adaptive)");
   ensureContains(README, "Workflow 2 — `hyper-build` (phased)");
 
-  ensureContains(DATA_MODEL, "Users invoke twelve Hyper skills directly");
+  ensureContains(DATA_MODEL, "Users invoke fifteen Hyper skills directly");
   ensureContains(DATA_MODEL, "`hyper-build`");
   ensureContains(
     DATA_MODEL,
@@ -528,6 +531,19 @@ function setupProbeFixture() {
     created: "2026-05-25T00:00:00",
     bugfix: "false",
   });
+  // Epic-enrolled folder: `E<M>T<N>-<slug>`. Its T number is the highest in the
+  // fixture, so it also pins id allocation — a probe that skips this form both
+  // hides the task and reissues T7.
+  writeTaskMd("tasks/E1T7-epic-enrolled", {
+    id: "T7",
+    title: "Epic-enrolled fixture",
+    phase: "technical-plan",
+    scope: "feature",
+    awaiting: "null",
+    created: "2026-05-26T00:00:00",
+    bugfix: "false",
+    epic: "E1",
+  });
   writeTaskMd("archive/T1-archived", {
     id: "T1",
     title: "Done fixture",
@@ -695,10 +711,10 @@ function validateStateProbeAgainstFixture() {
     const expect = (cond, msg) => { if (!cond) fail(`${where}: ${msg}`); };
 
     expect(snapshot.bootstrapped === true, `expected bootstrapped: true, got ${snapshot.bootstrapped}`);
-    expect(snapshot.next_task_id === 6, `expected next_task_id: 6 (max folder T5 + 1), got ${snapshot.next_task_id}`);
+    expect(snapshot.next_task_id === 8, `expected next_task_id: 8 (max folder T7, inside E1T7-, + 1), got ${snapshot.next_task_id}`);
     expect(snapshot.next_loop_id === 3, `expected next_loop_id: 3 (max folder L2 + 1), got ${snapshot.next_loop_id}`);
     expect(snapshot.next_backlog_id === 4, `expected next_backlog_id: 4 (max heading B3 + 1), got ${snapshot.next_backlog_id}`);
-    expect(snapshot.active_tasks.length === 2, `expected active_tasks.length: 2, got ${snapshot.active_tasks.length}`);
+    expect(snapshot.active_tasks.length === 3, `expected active_tasks.length: 3, got ${snapshot.active_tasks.length}`);
     expect(snapshot.archived_tasks.length === 2, `expected archived_tasks.length: 2, got ${snapshot.archived_tasks.length}`);
     expect(snapshot.active_loops.length === 1, `expected active_loops.length: 1 (only L1 is active), got ${snapshot.active_loops.length}`);
     expect(snapshot.backlog_entries.length === 3, `expected backlog_entries.length: 3 (em-dash + en-dash + hyphen), got ${snapshot.backlog_entries.length}`);
@@ -715,6 +731,20 @@ function validateStateProbeAgainstFixture() {
     if (t5) {
       expect(t5.awaiting === "user-approval", `expected T5.awaiting: "user-approval", got ${JSON.stringify(t5.awaiting)}`);
     }
+    // Epic-enrolled tasks must be routable and must not be invisible to the
+    // probe. Regression guard: the E<M>T<N>- folder form was skipped outright.
+    const t7 = snapshot.active_tasks.find((t) => t.id === "T7");
+    expect(t7 != null, `expected T7 (folder E1T7-epic-enrolled) in active_tasks — epic-enrolled tasks must be visible to routing`);
+    if (t7) {
+      expect(t7.category === "active", `expected T7.category: active, got ${JSON.stringify(t7.category)}`);
+      expect(t7.epic === "E1", `expected T7.epic: "E1", got ${JSON.stringify(t7.epic)}`);
+      expect(t7.path.includes("E1T7-"), `expected T7.path to keep the epic folder name, got ${JSON.stringify(t7.path)}`);
+    }
+    const t3NoEpic = snapshot.active_tasks.find((t) => t.id === "T3");
+    if (t3NoEpic) {
+      expect(t3NoEpic.epic === null, `expected T3.epic: null on an unenrolled task, got ${JSON.stringify(t3NoEpic.epic)}`);
+    }
+
     const t2 = snapshot.archived_tasks.find((t) => t.id === "T2");
     expect(t2 != null, `expected T2 in archived_tasks`);
     if (t2) {

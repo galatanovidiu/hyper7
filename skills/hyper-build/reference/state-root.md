@@ -107,10 +107,10 @@ The probe writes one JSON object to stdout with these top-level keys:
 |-----|------|---------|
 | `state_root` | string | Absolute path to the resolved Hyper state root. |
 | `bootstrapped` | boolean | `true` only when `.hyper/`, `.hyper/tasks/`, and `.hyper/archive/` all exist; `false` triggers the calling skill's bootstrap path. |
-| `next_task_id` | number | Next free integer for `T<N>` ids across `tasks/` and `archive/`; seeded to `1` when no tasks exist. |
+| `next_task_id` | number | Next free integer for `T<N>` ids across `tasks/` and `archive/`; seeded to `1` when no tasks exist. Epic-enrolled folders (`E<M>T<N>-<slug>`) count toward this by their `T` number. |
 | `next_loop_id` | number | Next free integer for `L<N>` ids across all loop folders; seeded to `1` when no loops exist. |
 | `next_backlog_id` | number | Next free integer for `B<N>` headings in `.hyper/backlog.md`; seeded to `1` when the file is missing or empty. |
-| `active_tasks` | array | One entry per task folder under `.hyper/tasks/` (see per-item shape below). |
+| `active_tasks` | array | One entry per task folder under `.hyper/tasks/` (see per-item shape below). Folders are matched as `T<N>-` or `E<M>T<N>-`; the task id is the `T` number. |
 | `archived_tasks` | array | One entry per task folder under `.hyper/archive/` (see per-item shape below). |
 | `active_loops` | array | One entry per loop folder whose `loop.md` carries `status: active`. |
 | `backlog_entries` | array | One entry per `## B<N> — <title>` heading in `.hyper/backlog.md`, in heading order. |
@@ -127,9 +127,10 @@ The probe writes one JSON object to stdout with these top-level keys:
 | `scope` | string \| null | Scope value as written in frontmatter. |
 | `awaiting` | string \| null | Top-level gate label; `null` round-trips as JSON `null`, not the string `"null"`. |
 | `created` | string \| null | Creation timestamp. |
-| `path` | string | Repo-relative folder path, e.g. `.hyper/tasks/T20-add-backlog-archive/`. |
+| `path` | string | Repo-relative folder path, e.g. `.hyper/tasks/T20-add-backlog-archive/`, or `.hyper/tasks/E1T21-add-sso/` when epic-enrolled. |
 | `has_handoff` | boolean | `true` when `handoff.md` exists in the task folder. |
 | `phase_known` | boolean | `false` when `phase` is not in the enum from [data-model.md](data-model.md). |
+| `epic` | string \| null | The `epic:` frontmatter value (`E<N>`) when the task is enrolled in an epic, else `null`. |
 | `category` | string | `active` · `deferred` · `terminal` · `unknown`. See "Category mapping" below. |
 
 ### `archived_tasks[*]`

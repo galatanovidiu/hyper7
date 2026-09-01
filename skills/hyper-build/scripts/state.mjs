@@ -193,7 +193,11 @@ function collectTaskFolders(stateRoot, dirAbs, kind, parseErrors) {
 
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
-    const folderMatch = /^T(\d+)-/.exec(entry.name);
+    // Task folders are `T<N>-<slug>`, or `E<M>T<N>-<slug>` when enrolled in an
+    // epic. The task id is the T number in both cases; the E number is the
+    // epic's. Skipping the epic form would hide those tasks from routing AND
+    // drop them from id allocation, reissuing an id that is already taken.
+    const folderMatch = /^(?:E\d+)?T(\d+)-/.exec(entry.name);
     if (!folderMatch) continue;
 
     const folderId = Number.parseInt(folderMatch[1], 10);
@@ -233,7 +237,7 @@ function collectTaskFolders(stateRoot, dirAbs, kind, parseErrors) {
     if (fmIdNum != null && fmIdNum !== folderId) {
       parseErrors.push({
         path: path.relative(stateRoot, taskMd),
-        reason: `frontmatter id ${fm.id ?? "<missing>"} does not match folder T${folderId}`,
+        reason: `frontmatter id ${fm.id ?? "<missing>"} does not match folder ${entry.name} (task id T${folderId})`,
       });
     }
 
@@ -248,6 +252,7 @@ function collectTaskFolders(stateRoot, dirAbs, kind, parseErrors) {
       has_handoff: fs.existsSync(path.join(folderAbs, "handoff.md")),
       phase_known: known,
       category,
+      epic: fm.epic ?? null,
     };
 
     if (kind === "archive") {
