@@ -58,7 +58,7 @@ reimplementing upstream's refactor by hand.
 
 Done as a **real `git merge`**, not a file copy, so both parents are recorded.
 The next upstream pull is an ordinary merge rather than another full
-reconciliation. `44bf458` has parents `68bd9e1` (dev) and `a2cf104` (upstream).
+reconciliation. `7deb5cd` has parents `68bd9e1` (dev) and `a2cf104` (upstream).
 
 **The rename was accepted** (`hyper` = adaptive default, `hyper-build` = phased).
 It makes every step cheap. Reversing it later is a small mechanical commit —
@@ -67,7 +67,7 @@ blocking decision.
 
 ## Commits
 
-### `44bf458` — Merge upstream restructuring into dev
+### `7deb5cd` — Merge upstream restructuring into dev
 
 Pure conflict resolution: 8 files, 19 hunks.
 
@@ -84,7 +84,7 @@ Pure conflict resolution: 8 files, 19 hunks.
 Came through unconflicted: `hyper-jira`, `hyper-sync`, `hyper-help`, `schema.md`,
 `docs/`, `package.json`, `scripts/deploy.sh`.
 
-### `050ad29` — Complete the `hyper` → `hyper-build` rename
+### `f14b430` — Complete the `hyper` → `hyper-build` rename
 
 **Issue 1 (found here, not reported upstream).** The rename was incomplete
 upstream. 44 references across 19 files still said `hyper` where they meant the
@@ -106,7 +106,7 @@ Also fixed the 3 broken cross-skill paths the merge introduced: `hyper-jira` and
 the only *new* validator failures from the merge, and reading that run is how
 they were caught.
 
-### `574fffe` — Graft dev's router features onto `hyper-build`
+### `a96cacc` — Graft dev's router features onto `hyper-build`
 
 `skills/hyper-build/SKILL.md`: 221 → 338 lines. 8 of dev's 9 blocks:
 
@@ -140,7 +140,7 @@ Added a note that `.hyper/jira.md`, `.hyper/repo.md` and `.hyper/epics.md`
 activate by direct file existence, not probe output — so the new "route
 everything from the probe" rule isn't read as forbidding those checks.
 
-### `5f1fb84` — Teach the state probe about epic folders
+### `3f03cd1` — Teach the state probe about epic folders
 
 **Issue 2 — the most dangerous, and invisible to git.** `state.mjs` matched task
 folders with `/^T(\d+)-/` and `continue`d on anything else. dev names
@@ -170,7 +170,7 @@ expected active_tasks.length: 3, got 2    <- the invisible task
 expected T7 ... in active_tasks
 ```
 
-### `30279bc` — Repoint user-facing docs and the eval recipe
+### `b33459b` — Repoint user-facing docs and the eval recipe
 
 Every surface still calling `hyper` phased and `hyper-iterate` adaptive. None is
 covered by a validator, so all were checked by hand.
@@ -204,7 +204,7 @@ dirs and the runner/grader teammate names keep the old spelling on purpose,
 because the path guard in `scripts/eval-hooks/validate-iterate-loop.sh` matches
 those dirs; a note in the file records why.
 
-### `b71be68` — Retarget the loop-skill validator — green
+### `c62f5b4` — Retarget the loop-skill validator — green
 
 **Issue 3.** Upstream's `5c83fec` rewrote `hyper/SKILL.md` and
 `templates/loop.md` without updating `validateHyper()`, so **upstream main has
