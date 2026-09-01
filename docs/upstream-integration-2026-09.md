@@ -237,6 +237,50 @@ if these are edited later.
 This fixes the validator, not the skill. Upstream's rewrite is the intended
 design and was left untouched.
 
+### Guard hyper-help against drift
+
+Follow-up to the step above, prompted by asking what `hyper-help` actually costs
+when it is not used.
+
+The token answer is "almost nothing": only the frontmatter `description` is
+always in context (314 chars, ~78 tokens — the second-smallest of any
+user-facing skill). The 5.5KB body loads only on invocation. Across all 25
+skills the always-loaded total is ~2,700 tokens against ~33,000 chars of body.
+
+The real costs were elsewhere, and both are now closed:
+
+**Routing collisions.** The description claimed `list`, `usage` and
+`how to use` as keywords. `list` is legitimately owned by four other skills
+(hyper-task, hyper-backlog, hyper-recipe, hyper-memory), so "list my tasks"
+could pull up the help reference instead. The description now scopes itself to
+explicit help requests and names the skills it must not intercept, so `list`
+appears only inside a negative instruction.
+
+**Unvalidated content.** Nothing checked what was inside hyper-help — only that
+the name was registered. That is why it advertised `/hyper-iterate` for the
+whole window between upstream's rename and this work. New `validateHyperHelp()`
+asserts, all derived from the tree rather than a hand-maintained list:
+
+1. every skill in `USER_FACING_HYPER` is documented
+2. every `/hyper*` command it advertises resolves to a real `skills/<name>/`
+3. no internal (`user-invocable: false`) skill is offered as a command
+
+Mutation-tested; assertion 2 reproduces the original bug exactly:
+
+```
+skills/hyper-help/SKILL.md: advertises /hyper-iterate, but skills/hyper-iterate/
+does not exist (stale command after a rename or removal?)
+```
+
+Worth recording honestly: the docs step above grew hyper-help 107 -> 140 lines,
+adding every subcommand and lane, *before* any guard existed. That made the file
+more useful and its drift surface larger at the same time. The guard should have
+come first.
+
+`docs/maintaining-hyper.md`'s rename checklist was also extended — including a
+step to grep for bare `` `hyper` `` when touching router-adjacent skills, the
+trap that cost 44 references in this merge.
+
 ## What we took from upstream
 
 | Thing | Why it matters |

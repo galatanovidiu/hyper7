@@ -101,11 +101,19 @@ These surfaces are the easiest to drift:
 Do all of these together:
 
 1. add or rename the folder under `skills/`
-2. update README
+2. update README and `AGENTS.md`
 3. update `skills/hyper-build/reference/data-model.md` if the workflow or state model changed
-4. update `scripts/validate-hyper.mjs`
-5. run `node scripts/validate-hyper.mjs`
-6. grep for stale skill names and stale artifact names
+4. update `scripts/validate-hyper.mjs` (`USER_FACING_HYPER` / `INTERNAL_HYPER`, and the
+   "Users invoke N Hyper skills directly" count sentinel in `data-model.md`)
+5. update `skills/hyper-help/SKILL.md` — `validateHyperHelp()` fails on a command
+   whose skill folder no longer exists, so a rename is caught here, but a *new*
+   user-facing skill must be added by hand
+6. if the skill is dispatched by, or returns a verdict to, the phased router, grep
+   for bare `` `hyper` `` — it means `hyper-build`, and the adaptive loop skill now
+   owns the name `hyper`. This is the trap the September 2026 upstream merge hit:
+   44 references across 19 files silently pointed at the wrong skill
+7. run `node scripts/validate-hyper.mjs`, then every `*.test.mjs`
+8. grep for stale skill names and stale artifact names
 
 ## When changing the data model
 

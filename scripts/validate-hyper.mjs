@@ -19,6 +19,7 @@ const HYPER_TEMPLATE = path.join(ROOT, "skills", "hyper", "templates", "loop.md"
 const HYPER_TECHNICAL_PLAN_TEMPLATE = path.join(ROOT, "skills", "hyper-technical-plan", "templates", "03-technical-plan.md");
 const HYPER_TECHNICAL_PLAN_BUGFIX_TEMPLATE = path.join(ROOT, "skills", "hyper-technical-plan", "templates", "03-technical-plan-bugfix.md");
 const HYPER_BUILD_SKILL = path.join(ROOT, "skills", "hyper-build", "SKILL.md");
+const HYPER_HELP_SKILL = path.join(ROOT, "skills", "hyper-help", "SKILL.md");
 const HYPER_BUILD_GATES = path.join(ROOT, "skills", "hyper-build", "reference", "gates.md");
 const HYPER_IMPLEMENT_SKILL = path.join(ROOT, "skills", "hyper-implement", "SKILL.md");
 const HYPER_WORKER_SKILL = path.join(ROOT, "skills", "hyper-worker", "SKILL.md");
@@ -819,6 +820,44 @@ function validateInstallHyperCopies() {
   }
 }
 
+// hyper-help restates facts that live in 25 other skill files, and nothing kept
+// them in sync: it advertised `/hyper-iterate` for the whole window between
+// upstream's rename and this check existing. Both assertions below are derived
+// from the tree rather than from a hand-maintained list, so a future rename
+// fails here instead of shipping a reference to a skill that does not exist.
+function validateHyperHelp() {
+  if (!ensureFile(HYPER_HELP_SKILL)) return;
+  const text = read(HYPER_HELP_SKILL);
+
+  // 1. Coverage — every user-invocable skill is documented somewhere.
+  for (const skill of [...USER_FACING_HYPER].sort()) {
+    if (!text.includes(`/${skill}`) && !text.includes(`\`${skill}\``)) {
+      fail(
+        `${relativeToRoot(HYPER_HELP_SKILL)}: user-facing skill ${JSON.stringify(skill)} is not documented (add it to the command reference, or drop it from USER_FACING_HYPER)`,
+      );
+    }
+  }
+
+  // 2. No phantom commands — every `/hyper*` it advertises resolves to a real
+  //    skill directory. This is what catches a rename: `/hyper-iterate` fails
+  //    the moment skills/hyper-iterate/ stops existing.
+  const advertised = new Set(
+    [...text.matchAll(/\/(hyper[a-z0-9-]*)/g)].map((m) => m[1]),
+  );
+  for (const cmd of [...advertised].sort()) {
+    if (!fs.existsSync(path.join(SKILLS_DIR, cmd))) {
+      fail(
+        `${relativeToRoot(HYPER_HELP_SKILL)}: advertises /${cmd}, but skills/${cmd}/ does not exist (stale command after a rename or removal?)`,
+      );
+    }
+    if (INTERNAL_HYPER.has(cmd)) {
+      fail(
+        `${relativeToRoot(HYPER_HELP_SKILL)}: advertises /${cmd}, which is an internal skill (user-invocable: false) and must not be offered as a command`,
+      );
+    }
+  }
+}
+
 function main() {
   validateSkillFiles();
   validateReadmeAndDataModel();
@@ -826,6 +865,7 @@ function main() {
   validateHyper();
   validatePlanConflictRedirect();
   validateGateMessaging();
+  validateHyperHelp();
   validateInstallHyperCopies();
   validateStateProbe();
 

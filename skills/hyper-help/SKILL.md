@@ -1,7 +1,7 @@
 ---
 name: hyper-help
 description: >
-  Shows all available Hyper commands, workflows, lanes, and usage examples. Use when the user asks for help with Hyper, wants to know what commands are available, needs a quick reference, types `/hyper help`, or asks "what can hyper do". Keywords: hyper, help, commands, reference, usage, list, what can, how to use.
+  Shows the Hyper command reference: every user-invocable Hyper skill, its subcommands, the phase lanes, and the approval phrases. Use only when the user explicitly asks for Hyper help or a Hyper command reference — for example `/hyper-help`, "what Hyper commands are there", or "what can Hyper do". Do NOT use for questions about how one specific skill behaves, and do NOT use for listing tasks, backlog items, recipes, or memories — those belong to hyper-task, hyper-backlog, hyper-recipe, and hyper-memory respectively. Keywords: hyper-help, hyper commands, hyper command reference, hyper cheatsheet.
 ---
 
 # hyper-help
