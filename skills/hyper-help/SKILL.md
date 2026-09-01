@@ -14,12 +14,16 @@ Display the Hyper command reference below. No task state reads, no phase dispatc
 
 ### Workflows
 
+Hyper has two entry points. `hyper` is the default.
+
 | Command | Use it for |
 | --- | --- |
-| `/hyper <request>` | Start a phased task: intake → plan → implement → verify → done. |
-| `/hyper T<N>` | Resume a task by id. |
-| `/hyper-iterate <goal>` | Start an adaptive OODA loop for exploratory or iterative work. |
-| `/hyper-iterate L<N>` | Resume a loop by id. |
+| `/hyper <goal>` | Start adaptive work — an OODA loop that course-corrects as it learns. |
+| `/hyper L<N>` | Resume a loop by id. |
+| `/hyper-build <request>` | Start phased work: intake → plan → implement → verify → done. |
+| `/hyper-build T<N>` | Resume a task by id. |
+
+Reach for `hyper` when the route or the goal may change as you learn. Reach for `hyper-build` when both are settled up front and you want fixed phases with approval gates.
 
 ### Task Management
 
@@ -35,10 +39,12 @@ Display the Hyper command reference below. No task state reads, no phase dispatc
 
 | Command | Use it for |
 | --- | --- |
-| `/hyper-task epic create <name>` | Create a new epic. |
-| `/hyper-task epic add T<N> E<N>` | Enroll an existing task in an epic. |
-| `/hyper-task epic list` | List all epics and their tasks. |
-| `/hyper <request> --epic E<N>` | Create a new task pre-enrolled in an epic. |
+| `/hyper-task epic create <title>` | Create a new epic. Add `--source PROJ-42` to record a Jira epic key. |
+| `/hyper-task epic add T<N> E<M>` | Enroll an existing task in an epic. |
+| `/hyper-task epic list [E<N>]` | List all epics and their tasks, or one epic. |
+| `/hyper-build <request> --epic E<N>` | Create a new task pre-enrolled in an epic. |
+
+Epic-enrolled task folders are named `E<M>T<N>-<slug>`; the task id stays the `T` number.
 
 ### Context and Collaboration
 
@@ -46,12 +52,22 @@ Display the Hyper command reference below. No task state reads, no phase dispatc
 | --- | --- |
 | `/hyper-backlog <idea>` | Add a future idea to the backlog. |
 | `/hyper-backlog list` | List all backlog items. |
-| `/hyper-backlog promote <id>` | Promote a backlog item into an active task. |
+| `/hyper-backlog promote B<N>` | Promote a backlog item into a task. |
 | `/hyper-handoff` | Write a handoff note when conversation context will be lost. |
 | `/hyper-retro` | Record lessons learned after a task or session. |
 | `/hyper-recipe` | Manage reusable project-local procedures in `.hyper/recipes/`. |
 | `/hyper-code-review` | Review a diff, branch, PR, or staged change outside a task. |
 | `/hyper-team` | Ask another AI agent CLI for a second opinion. |
+| `/hyper-memory` | Save, list, search, or drop project learnings in `.hyper/memory/`. |
+
+### Output Formatting
+
+| Command | Use it for |
+| --- | --- |
+| `/hyper-digest` | Toggle scannable digest formatting (BLUF + sections) for long responses. Stays on until turned off. |
+| `/hyper-digest off` | Turn digest formatting back off. |
+| `/hyper-short-story` | Rewrite the previous response as a short, plain-language narrative. One-shot. |
+| `/hyper-help` | Show this reference. |
 
 ### Integrations
 
@@ -62,13 +78,32 @@ Display the Hyper command reference below. No task state reads, no phase dispatc
 | `/hyper-jira comment <text>` | Post a comment to the linked Jira issue mid-task. |
 | `/hyper-jira status` | Check Jira connectivity. |
 | `/hyper-sync init <remote>` | Set up shared `.hyper/` team repo (writes `.hyper/repo.md`). |
+| `/hyper-sync clone <remote>` | Clone an existing shared `.hyper/` team repo. |
 | `/hyper-sync pull` | Pull latest team state before starting work. |
 | `/hyper-sync push` | Push `.hyper/` state after completing a task. |
 | `/hyper-sync status` | Show sync status vs. remote. |
 
+Both integrations activate on a config file and are otherwise a no-op: Jira on `.hyper/jira.md`, team sync on `.hyper/repo.md`.
+
+### YOLO mode
+
+Prefix a `hyper-build` request with `yolo` to hand routine approvals to `hyper-team` as a decision proxy instead of stopping for you:
+
+```text
+/hyper-build yolo Add rate limiting to the public API.
+```
+
+The `intake` and `spec` approval gates still stop for you — they elicit intent a proxy cannot supply. A proxy that cannot decide, or that asks for changes twice without approving, also stops for you.
+
 ### Workflows at a Glance
 
-**`hyper` (phased)** — use when destination and route are both clear up front:
+**`hyper` (adaptive)** — the route may change as you learn:
+
+`Load and Route → Align → Cycle (observe → orient → decide → act) → Verify and Close`
+
+Work is tracked as a loop (`L<N>`) split into parts (`P<N>`). Each cycle records one move with its evidence. No cycle runs before the plan is approved; nothing closes `done` without a passing verify.
+
+**`hyper-build` (phased)** — destination and route are both clear up front:
 
 | Lane | Phase sequence |
 | --- | --- |
@@ -77,11 +112,7 @@ Display the Hyper command reference below. No task state reads, no phase dispatc
 | `research` | intake → research → done |
 | `code-review` | review → done |
 
-`bugfix: true` is orthogonal — skips `spec` for feature bugfixes, skips `spec` for quick bugfixes.
-
-**`hyper-iterate` (adaptive)** — use when the route must evolve through contact with reality:
-
-`Load and Route → Align → Cycle (observe → orient → decide → act) → Verify and Close`
+`bugfix: true` skips `spec` on the `feature` lane. The `quick` lane has no `spec` phase to skip.
 
 ### Approval Phrases
 
@@ -96,12 +127,14 @@ At each gate, reply with:
 ### Examples
 
 ```text
-/hyper Add a login page with email and password.
-/hyper T3
-/hyper-iterate Investigate slow report generation and try a fix.
+/hyper Investigate slow report generation and try a fix.
+/hyper L2
+/hyper-build Add a login page with email and password.
+/hyper-build T3
+/hyper-build yolo Bump the SDK and fix the fallout.
 /hyper-task
 /hyper-task epic create User Authentication
-/hyper Add JWT refresh token support --epic E1
+/hyper-build Add JWT refresh token support --epic E1
 /hyper-jira PROJ-123
 /hyper-sync pull
 ```

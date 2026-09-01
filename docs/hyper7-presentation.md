@@ -94,12 +94,12 @@ Verification phases (verify, docs) have no gate — the agent reports results an
 
 ## 4. The Two Workflows
 
-### Workflow A: `hyper` — Phased (stable direction)
+### Workflow A: `hyper-build` — Phased (stable direction)
 
 Used when you know what you want to build and need structured execution.
 
 ```
-/hyper Add a login page with email and password, and keep the session after reload.
+/hyper-build Add a login page with email and password, and keep the session after reload.
 ```
 
 ```
@@ -119,12 +119,12 @@ For feature-scope tasks, `hyper-implement` dispatches independent `hyper-worker`
 
 ---
 
-### Workflow B: `hyper-iterate` — Adaptive OODA Loop (evolving direction)
+### Workflow B: `hyper` — Adaptive OODA Loop (evolving direction)
 
 Used when the destination is known but the route must be discovered, or when the goal itself needs probing.
 
 ```
-/hyper-iterate Investigate slow report generation and try a fix.
+/hyper Investigate slow report generation and try a fix.
 ```
 
 The loop follows the **OODA cycle**: Observe → Orient → Decide → Act — repeated until the goal is met or explicitly stopped.
@@ -162,7 +162,8 @@ hyper7E/
 │   ├── hyper-worker/            ← Executes one subtask
 │   ├── hyper-verify/
 │   ├── hyper-docs/
-│   ├── hyper-iterate/           ← OODA loop orchestrator
+│   ├── hyper/                   ← OODA loop orchestrator (default entry)
+│   ├── hyper-build/             ← Phased task router
 │   ├── hyper-jira/              ← Jira integration
 │   ├── hyper-sync/              ← Team sync
 │   └── ... (9 more)
@@ -183,7 +184,7 @@ skills/hyper-intake/
     └── gates.md         ← Reference the agent reads on demand
 ```
 
-### How the master skill (`hyper`) works
+### How the phased router (`hyper-build`) works
 
 1. Read `task.md` frontmatter → determine current phase and awaiting state
 2. If `awaiting-approval` → prompt user to review artifact, wait
@@ -215,7 +216,7 @@ docs ──► [phase-complete] ──► DONE
 ### Starting new work
 
 ```bash
-/hyper Add a dark mode toggle to the settings page
+/hyper-build Add a dark mode toggle to the settings page
 ```
 
 The agent:
@@ -234,7 +235,7 @@ approve
 ### Resuming a task
 
 ```bash
-/hyper T4
+/hyper-build T4
 ```
 
 Reads `task.md`, determines current phase, picks up where it left off.
@@ -245,10 +246,10 @@ Reads `task.md`, determines current phase, picks up where it left off.
 
 | Command | What it does |
 |---|---|
-| `/hyper <request>` | Start structured work (phased workflow) |
-| `/hyper T<N>` | Resume task T<N> |
-| `/hyper-iterate <goal>` | Start adaptive loop |
-| `/hyper-iterate L<N>` | Resume loop L<N> |
+| `/hyper <goal>` | Start adaptive loop (default entry point) |
+| `/hyper L<N>` | Resume loop L<N> |
+| `/hyper-build <request>` | Start structured work (phased workflow) |
+| `/hyper-build T<N>` | Resume task T<N> |
 | `/hyper-task list` | See all active tasks |
 | `/hyper-task epic create <title>` | Create an epic |
 | `/hyper-backlog <idea>` | Add to idea inbox |
