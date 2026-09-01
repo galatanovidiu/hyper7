@@ -2,6 +2,15 @@
 
 This guide is for humans editing the Hyper repo itself.
 
+## History
+
+[docs/upstream-integration-2026-09.md](upstream-integration-2026-09.md) records
+how dev absorbed upstream's entry-point rename (`hyper` -> `hyper-build`,
+`hyper-iterate` -> `hyper`) and the state-probe refactor, which decisions were
+made and why, and what was deliberately left alone. Read it before touching the
+router, the probe's folder matching, or the loop-skill validator assertions —
+each of those carried a non-obvious bug through that merge.
+
 ## Validate the suite locally
 
 Run:
