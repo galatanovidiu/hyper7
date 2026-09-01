@@ -164,18 +164,19 @@ standard gate contract. All other gate behavior is unchanged.
 |------|-------------------|---------------|
 | `technical-plan` `awaiting-approval` | Set `awaiting: user-approval` and stop. | Invoke the `hyper-team` skill as proxy. On `approve`: advance. On `needs-changes`: re-dispatch phase skill with findings; retry once. On `no-consensus` or two consecutive `needs-changes`: stop for user. |
 | `execution-plan` `awaiting-approval` | Set `awaiting: user-approval` and stop. | Same as `technical-plan` above. |
-| `implement → verify` checkpoint | Emit prompt and stop. | Suppress prompt; advance to `verify` automatically. |
-| `verify → docs` pass checkpoint | Emit prompt and stop. | Suppress prompt; advance to `docs` automatically. |
 | Jira completion comment | Show `jira.md` and ask `"Post? [y/N]"`. | Post automatically without asking. |
 | Jira cold-resume description diff | Show diff and ask whether to update. | Apply update automatically. |
 | Jira import dirty-tree (auto_branch) | Prompt: stash / commit / skip. | Auto-stash without prompting. |
 
 ### Gates that always fire regardless of `yolo`
 
+There is no `implement → verify` or `verify → docs` checkpoint prompt to
+suppress: both are deterministic transitions taken in the same turn for every
+task (see the phased router's §Continue deterministic transitions), and the
+`verify → implement` and `implement → technical-plan` redirects set
+`awaiting: null`. `yolo` changes nothing there.
+
 - `intake` and `spec` approval gates — elicit user intent; proxy cannot substitute.
-- `verify → docs` needs-changes prompt — user must choose the remediation path.
-- `verify → implement` redirect (verify failure) — remediation requires human judgment.
-- `implement → technical-plan` redirect (plan conflict) — same reason.
 - Proxy `no-consensus` on `technical-plan` or `execution-plan` — genuine ambiguity.
 - Two consecutive proxy `needs-changes` without an `approve` — stop for user.
 - Jira `comment` disambiguation when multiple tasks share a `jira_key`.
