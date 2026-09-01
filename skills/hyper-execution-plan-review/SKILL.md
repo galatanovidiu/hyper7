@@ -10,9 +10,9 @@ user-invocable: false
 Review `04-execution-plan.md` and the subtask files before implementation
 starts.
 
-Resolve the Hyper state root per `../hyper/reference/state-root.md` before
+Resolve the Hyper state root per `../hyper-build/reference/state-root.md` before
 reading or writing `.hyper/` paths. The data model is in
-`../hyper/reference/data-model.md`.
+`../hyper-build/reference/data-model.md`.
 
 ## Inputs
 
@@ -52,7 +52,7 @@ Write `05-execution-plan-review.md` from
 
 ## Return contract
 
-This skill is invoked by `hyper-execution-plan`, not by `hyper` directly. It
+This skill is invoked by `hyper-execution-plan`, not by `hyper-build` directly. It
 returns the verdict above directly to `hyper-execution-plan`, which folds it
-into its own return contract to `hyper`. The verdict is also written verbatim
+into its own return contract to `hyper-build`. The verdict is also written verbatim
 to `05-execution-plan-review.md` so the next dispatch can read it on disk.

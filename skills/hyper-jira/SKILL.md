@@ -16,7 +16,7 @@ description: >
 Integrate Jira with the Hyper workflow.
 
 Before anything else, resolve the Hyper state root per
-`../hyper/reference/state-root.md`. All `.hyper/` paths are relative to that root.
+`../hyper-build/reference/state-root.md`. All `.hyper/` paths are relative to that root.
 
 **No-op rule:** all operations except `init` check for `.hyper/jira.md` first.
 When absent, print:
@@ -130,7 +130,7 @@ Triggered when the user provides a Jira issue key matching pattern
     - `**Reporter:** <reporter.displayName>` line.
     - `## Jira Comments` section with the 5 most recent comments (author, date,
       body). If more than 5 exist, note the total count.
-11. Seed `dashboard.md` from `../hyper/templates/dashboard.md`, filling
+11. Seed `dashboard.md` from `../hyper-build/templates/dashboard.md`, filling
     `## Goal` from the task body.
 12. If an epic was enrolled, update the `epics.md` Tasks column to include the
     new task id.
@@ -164,7 +164,7 @@ Triggered when the user provides a Jira issue key matching pattern
     creation.
 15. Report:
     `Created T<N> — <title> (from <JIRA-KEY>). Jira status set to In Progress.
-    Continue with: hyper T<N>`
+    Continue with: hyper-build T<N>`
 
 ## comment
 

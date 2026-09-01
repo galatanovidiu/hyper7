@@ -2,6 +2,15 @@
 
 This guide is for humans editing the Hyper repo itself.
 
+## History
+
+[docs/upstream-integration-2026-09.md](upstream-integration-2026-09.md) records
+how dev absorbed upstream's entry-point rename (`hyper` -> `hyper-build`,
+`hyper-iterate` -> `hyper`) and the state-probe refactor, which decisions were
+made and why, and what was deliberately left alone. Read it before touching the
+router, the probe's folder matching, or the loop-skill validator assertions —
+each of those carried a non-obvious bug through that merge.
+
 ## Validate the suite locally
 
 Run:
@@ -18,7 +27,7 @@ The validator checks a small set of structural contracts:
 - referenced `templates/` and `reference/` files exist
 - named skill handoffs point to real shipped skills
 - README and the Hyper data model still describe the current skill inventory
-- `hyper-iterate` keeps its loop frontmatter, required sections, authority and
+- `hyper` keeps its loop frontmatter, required sections, authority and
   approval-gate sections, resume buckets, intent vocabulary, and
   no-task-artifact boundary aligned across the skill, template, README, and
   data model
@@ -32,13 +41,13 @@ These surfaces are the easiest to drift:
 
 1. **Skill inventory and counts**
    - README
-   - `skills/hyper/reference/data-model.md`
+   - `skills/hyper-build/reference/data-model.md`
    - `scripts/validate-hyper.mjs`
 
 2. **Gate protocol and transitions**
-   - `skills/hyper/SKILL.md`
+   - `skills/hyper-build/SKILL.md`
    - phase skills that set gates
-   - `skills/hyper/reference/gates.md`
+   - `skills/hyper-build/reference/gates.md`
    - README example flows
 
 3. **Phase and artifact naming**
@@ -53,10 +62,10 @@ These surfaces are the easiest to drift:
    - `skills/hyper-execution-plan-review/SKILL.md`
    - `skills/hyper-execution-plan-review/templates/05-execution-plan-review.md`
    - `skills/hyper-execution-plan/SKILL.md`
-   - `skills/hyper/reference/data-model.md`
+   - `skills/hyper-build/reference/data-model.md`
 
 5. **Worker-guardrails contract**
-   - `skills/hyper/reference/worker-guardrails.md`
+   - `skills/hyper-build/reference/worker-guardrails.md`
    - `skills/hyper-worker/SKILL.md`
    - `skills/hyper-code-review/SKILL.md`
    - dispatcher skills that mention the reference in their dispatch prompt
@@ -65,34 +74,53 @@ These surfaces are the easiest to drift:
    - `skills/hyper-verify/SKILL.md`
    - `skills/hyper-docs/SKILL.md`
    - `skills/hyper-verify/templates/checks.md`
-   - `skills/hyper/reference/data-model.md`
+   - `skills/hyper-build/reference/data-model.md`
 
-7. **`hyper-iterate` loop contract**
-   - `skills/hyper-iterate/SKILL.md`
-   - `skills/hyper-iterate/templates/loop.md`
-   - `skills/hyper/reference/data-model.md`
+7. **`hyper` loop contract**
+   - `skills/hyper/SKILL.md`
+   - `skills/hyper/templates/loop.md`
+   - `skills/hyper-build/reference/data-model.md`
    - README loop examples and wording
    - `scripts/validate-hyper.mjs`
    - optional eval hook: `scripts/eval-hooks/validate-iterate-loop.sh`
    - hard gate stays intact: authority -> understanding -> code scan -> findings -> loop plan -> part-level approvals -> cycles
+
+8. **State probe contract**
+   - `skills/hyper-build/scripts/state.mjs` (the read-only Node ESM probe)
+   - `skills/hyper-build/reference/state-root.md` (the probe's contract — invocation, output schema, category mapping, errors, env coverage, sub-skill resolution rule)
+   - `skills/hyper-build/reference/data-model.md` (the id-allocation references that point at the probe)
+   - the five probe-caller skills: `skills/hyper-build/SKILL.md` (uses `<skill-base-dir>/scripts/state.mjs`), `skills/hyper-task/SKILL.md`, `skills/hyper-backlog/SKILL.md`, `skills/hyper/SKILL.md`, `skills/hyper-memory/SKILL.md` (each uses `<skill-base-dir>/../hyper-build/scripts/state.mjs`)
+   - the indirect consumers — every other Hyper skill that says "Resolve the Hyper state root per `../hyper-build/reference/state-root.md`" relies on `state-root.md`'s **Sub-skill resolution** section. If that section is restructured or removed, walk these and update them too: `hyper-intake`, `hyper-spec`, `hyper-technical-plan`, `hyper-execution-plan`, `hyper-execution-plan-review`, `hyper-research`, `hyper-implement`, `hyper-worker`, `hyper-verify`, `hyper-docs`, `hyper-code-review`, `hyper-team`, `hyper-handoff`, `hyper-retro`, `hyper-recipe`
+   - `scripts/validate-hyper.mjs` (presence + schema assertions, including a synthetic-fixture pass that exercises the probe against controlled inputs)
+   - `.claude/skills/install-hyper/scripts/install.sh` and `.agents/skills/install-hyper/scripts/install.sh` (the `verify_probe_reachable` portability check; both files must remain byte-identical; stdout and stderr must stay separated when capturing probe output)
+   - keep the probe **read-only**: no writes, no Git mutations, no new external dependencies
+   - id allocation is **folder-name-canonical**: the probe scans `T<N>-` / `L<N>-` folder names for next-id math, and surfaces frontmatter-id mismatches as `parse_errors` entries
 
 ## When adding or renaming a skill
 
 Do all of these together:
 
 1. add or rename the folder under `skills/`
-2. update README
-3. update `skills/hyper/reference/data-model.md` if the workflow or state model changed
-4. update `scripts/validate-hyper.mjs`
-5. run `node scripts/validate-hyper.mjs`
-6. grep for stale skill names and stale artifact names
+2. update README and `AGENTS.md`
+3. update `skills/hyper-build/reference/data-model.md` if the workflow or state model changed
+4. update `scripts/validate-hyper.mjs` (`USER_FACING_HYPER` / `INTERNAL_HYPER`, and the
+   "Users invoke N Hyper skills directly" count sentinel in `data-model.md`)
+5. update `skills/hyper-help/SKILL.md` — `validateHyperHelp()` fails on a command
+   whose skill folder no longer exists, so a rename is caught here, but a *new*
+   user-facing skill must be added by hand
+6. if the skill is dispatched by, or returns a verdict to, the phased router, grep
+   for bare `` `hyper` `` — it means `hyper-build`, and the adaptive loop skill now
+   owns the name `hyper`. This is the trap the September 2026 upstream merge hit:
+   44 references across 19 files silently pointed at the wrong skill
+7. run `node scripts/validate-hyper.mjs`, then every `*.test.mjs`
+8. grep for stale skill names and stale artifact names
 
 ## When changing the data model
 
-Treat `skills/hyper/reference/data-model.md` as authoritative. At minimum,
+Treat `skills/hyper-build/reference/data-model.md` as authoritative. At minimum,
 check:
 
-- `hyper`
+- `hyper-build`
 - `hyper-task`
 - `hyper-backlog`
 - `hyper-intake`
@@ -108,8 +136,9 @@ check:
 - `hyper-handoff`
 - `hyper-retro`
 - `hyper-recipe`
-- `hyper-iterate`
+- `hyper`
 - `hyper-short-story`
+- `hyper-memory`
 
 ## Repairing example drift
 

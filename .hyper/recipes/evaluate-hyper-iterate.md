@@ -1,12 +1,19 @@
 ---
 name: evaluate-hyper-iterate
-description: Agent-teams evaluation of the hyper-iterate skill — dispatches realistic prompts to isolated runner teammates, each executing `hyper-iterate` in its own clone, then an adversarial grader teammate scores the resulting loop artifacts against a rubric focused on route quality, resume readiness, evidence compaction, and bounded delegation hygiene.
+description: Agent-teams evaluation of the hyper skill — dispatches realistic prompts to isolated runner teammates, each executing `hyper` in its own clone, then an adversarial grader teammate scores the resulting loop artifacts against a rubric focused on route quality, resume readiness, evidence compaction, and bounded delegation hygiene.
 ---
 
 # Evaluate hyper-iterate
 
+> The recipe id, this filename, the `/tmp/hyper-iterate-eval-*` clone dirs and the
+> runner/grader teammate names keep the historical `hyper-iterate` spelling. The
+> skill under evaluation was renamed `hyper-iterate` -> `hyper` upstream; the
+> eval-hook path guard in `scripts/eval-hooks/validate-iterate-loop.sh` matches
+> those dirs, so the names are kept in step deliberately. Everything that names
+> the skill itself now says `hyper`.
+
 Dispatches scenarios to isolated runner teammates that know nothing about the
-evaluation. Each runner receives a user prompt and executes the `hyper-iterate`
+evaluation. Each runner receives a user prompt and executes the `hyper`
 skill naturally in its own clone. A separate grader teammate reads the created
 loop artifacts and scores them against the rubric below. The lead aggregates.
 
@@ -15,10 +22,10 @@ Uses Claude Code **agent teams** (experimental). Requires
 
 ## What this recipe evaluates
 
-This recipe is for the current `hyper-iterate` lane, not the old task/explore
+This recipe is for the current `hyper` lane, not the old task/explore
 workflow. It evaluates whether runners can:
 
-- choose `hyper-iterate` naturally for adaptive work
+- choose `hyper` naturally for adaptive work
 - create a coherent loop with route, focus, bar, and parts
 - preserve readable hot state for resume
 - keep evidence compact with digests and artifact pointers when needed
@@ -76,10 +83,10 @@ runners never see it.
 
 | # | Prompt | Expected mode signal | What it tests |
 |---|--------|----------------------|---------------|
-| S1 | "Add a tiny maintainer note to the `hyper-iterate` docs explaining when to stop a loop and start a new one. Work adaptively and keep durable state." | small doc refinement through `hyper-iterate` | Baseline route/focus/bar/parts behavior on a bounded change. |
-| S2 | "Something is off with `hyper-iterate` resume behavior. I keep losing the next step after a long session. Improve whatever state the loop most obviously needs, but work iteratively and pause cleanly if the route changes." | adaptive bugfix/refinement | Whether the runner maintains route, evidence, and handoff quality while fixing a fuzzy issue. |
-| S3 | "I know I want a better evaluation story for `hyper-iterate`, but I do not want a stiff plan. Start by shaping one reusable artifact or script improvement and adjust the route as you learn." | known goal, evolving route | Whether the runner can decompose work into parts without defaulting to the full task workflow. |
-| S4 | "Use `hyper-iterate` for a couple of meaningful cycles, then pause instead of forcing completion. Leave the loop easy for a fresh session to resume." | active paused loop, not forced done | Whether pause state, handoff cues, and hot-state readability are preserved. |
+| S1 | "Add a tiny maintainer note to the `hyper` docs explaining when to stop a loop and start a new one. Work adaptively and keep durable state." | small doc refinement through `hyper` | Baseline route/focus/bar/parts behavior on a bounded change. |
+| S2 | "Something is off with `hyper` resume behavior. I keep losing the next step after a long session. Improve whatever state the loop most obviously needs, but work iteratively and pause cleanly if the route changes." | adaptive bugfix/refinement | Whether the runner maintains route, evidence, and handoff quality while fixing a fuzzy issue. |
+| S3 | "I know I want a better evaluation story for `hyper`, but I do not want a stiff plan. Start by shaping one reusable artifact or script improvement and adjust the route as you learn." | known goal, evolving route | Whether the runner can decompose work into parts without defaulting to the full task workflow. |
+| S4 | "Use `hyper` for a couple of meaningful cycles, then pause instead of forcing completion. Leave the loop easy for a fresh session to resume." | active paused loop, not forced done | Whether pause state, handoff cues, and hot-state readability are preserved. |
 
 ## Team composition
 
@@ -91,7 +98,7 @@ The lead spawns the following team:
     `/tmp/hyper-iterate-eval-<eval_id>/runs/S<N>/`.
   - Receives ONLY the scenario prompt (no expected values, no rubric, no
     knowledge of the eval).
-  - Invokes the `hyper-iterate` skill as a real user would.
+  - Invokes the `hyper` skill as a real user would.
   - Is instructed to work until either:
     - the current bar is met and the loop has a meaningful stop point, or
     - three substantial cycles have completed,
@@ -108,7 +115,7 @@ The lead spawns the following team:
 
 ```text
 You are helping a user with a software task on the hyper repo.
-Use the `hyper-iterate` skill as a regular user would.
+Use the `hyper` skill as a regular user would.
 
 Behavior rules:
 - Work adaptively. Do not switch to the full `hyper` workflow unless the task
@@ -127,15 +134,15 @@ The user says:
 ### Spawn prompt (grader template)
 
 ```text
-You are an adversarial grader for a hyper-iterate evaluation. You do NOT run
-hyper-iterate yourself. You read loop artifacts produced by 4 runner teammates
+You are an adversarial grader for a `hyper` loop evaluation. You do NOT run
+the `hyper` skill yourself. You read loop artifacts produced by 4 runner teammates
 and score them against the rubric.
 
 Inputs:
 - reports/ground-truth.md — expected mode signal per scenario
 - runs/S<N>/.hyper/loops/L*.md — runner loop artifacts
-- skills/hyper-iterate/SKILL.md — the contract being evaluated
-- skills/hyper-iterate/templates/loop.md — the canonical loop scaffold
+- skills/hyper/SKILL.md — the contract being evaluated
+- skills/hyper/templates/loop.md — the canonical loop scaffold
 
 Rubric (for each scenario S1–S4):
 1. Loop creation: exactly one coherent loop file was created. (pass/fail)
@@ -207,7 +214,7 @@ After the aggregate report is written:
 Aggregate report at `.hyper/evals/<eval_id>/reports/summary.md`:
 
 ```markdown
-# hyper-iterate evaluation — <eval_id>
+# hyper loop evaluation — <eval_id>
 
 **Commit:** <sha>
 **Scenarios:** 4
@@ -236,11 +243,11 @@ Aggregate report at `.hyper/evals/<eval_id>/reports/summary.md`:
 ## Notes and limitations
 
 - **Runners still load repo instructions and installed skills.** This is a
-  realistic eval of `hyper-iterate` in this repo's context.
+  realistic eval of `hyper` in this repo's context.
 - **This recipe evaluates loop quality, not absolute product correctness.** A
   runner can make a weak implementation choice and still reveal useful signal
   about resume discipline.
 - **Agent teams are experimental.** If a runner stalls, the lead can spawn a
   replacement teammate for that scenario.
-- **This recipe covers `hyper-iterate` only.** Other skills need their own
+- **This recipe covers `hyper` only.** Other skills need their own
   dedicated recipes.
