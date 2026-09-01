@@ -24,7 +24,7 @@ reading or writing `.hyper/` paths. The data model is in
 ## Outputs
 
 - `02-spec.md`
-- A verdict to `hyper`
+- A verdict to `hyper-build`
 
 ## Flow
 

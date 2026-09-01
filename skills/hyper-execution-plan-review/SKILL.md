@@ -52,7 +52,7 @@ Write `05-execution-plan-review.md` from
 
 ## Return contract
 
-This skill is invoked by `hyper-execution-plan`, not by `hyper` directly. It
+This skill is invoked by `hyper-execution-plan`, not by `hyper-build` directly. It
 returns the verdict above directly to `hyper-execution-plan`, which folds it
-into its own return contract to `hyper`. The verdict is also written verbatim
+into its own return contract to `hyper-build`. The verdict is also written verbatim
 to `05-execution-plan-review.md` so the next dispatch can read it on disk.

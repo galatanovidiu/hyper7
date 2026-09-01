@@ -113,7 +113,7 @@ motivation, constraint, or triggering incident would help a future reader.
 | `code-review` | `review -> done` |
 
 Tasks start in `phase: deferred` only when created for later by `hyper-task` or
-promoted from backlog. The first `hyper T<N>` start sets `phase: intake`.
+promoted from backlog. The first `hyper-build T<N>` start sets `phase: intake`.
 
 ## `dashboard.md`
 
@@ -181,7 +181,7 @@ No body. The file has only frontmatter.
 ## `.hyper/jira.md`
 
 Written by `hyper-jira init`. Its presence activates Jira integration across
-`hyper` and `hyper-jira`; when absent, all Jira-aware behavior is a no-op.
+`hyper-build` and `hyper-jira`; when absent, all Jira-aware behavior is a no-op.
 
 ```markdown
 ---
@@ -209,7 +209,7 @@ from environment variables `JIRA_USER` and `JIRA_TOKEN` set per-developer.
 
 ## `jira.md` (task folder)
 
-Written by `hyper` just before archiving a task that has `jira_key` set in
+Written by `hyper-build` just before archiving a task that has `jira_key` set in
 `task.md`. Contains a structured completion summary posted to Jira as a comment.
 Not to be confused with `.hyper/jira.md` (the project-level config file).
 
@@ -233,7 +233,7 @@ written_at: 2026-05-14T10:30:00
 ```
 
 Required sections: **What was done**, **Key decisions**, **Notes for QA**
-(optional). Developer reviews and confirms before `hyper` posts it as a Jira
+(optional). Developer reviews and confirms before `hyper-build` posts it as a Jira
 comment.
 
 ## Internal vs user-facing skills

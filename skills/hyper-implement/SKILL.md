@@ -33,7 +33,7 @@ reading or writing `.hyper/` paths. The data model is in
    relevant checks, summarize the work, and return `phase-complete`.
 4. For `scope: feature`, read `04-execution-plan.md` and all subtask files.
 5. If this dispatch is a re-entry on a user reply (the previous return was
-   `awaiting-input` and `task.md` `awaiting` was just cleared by `hyper`),
+   `awaiting-input` and `task.md` `awaiting` was just cleared by `hyper-build`),
    route the reply to the subtask that produced the open question:
    record the answer under the subtask's `## Open questions` per
    `../hyper-build/reference/gates.md` §Question serialization, then re-dispatch

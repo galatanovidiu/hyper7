@@ -1,6 +1,6 @@
 # Hyper — Gate Protocol and Verdict Contract
 
-This file is the single authority for how `hyper` and the phase skills
+This file is the single authority for how `hyper-build` and the phase skills
 coordinate.
 
 ## Source of truth
@@ -12,7 +12,7 @@ coordinate.
 
 ## Ownership split
 
-- `hyper` owns every mutation of `task.md` `phase:` and `awaiting:`.
+- `hyper-build` owns every mutation of `task.md` `phase:` and `awaiting:`.
 - `hyper-task` owns user-initiated `phase: deferred` and `phase: cancelled`.
 - `hyper-code-review` owns standalone `scope: code-review` task creation,
   terminal `phase: done`, and archive move.
@@ -28,7 +28,7 @@ coordinate.
 
 Every phase dispatch ends with exactly one verdict:
 
-| Verdict | Meaning | `hyper` does |
+| Verdict | Meaning | `hyper-build` does |
 |---------|---------|--------------|
 | `awaiting-approval` | Artifact written; user approval required. | Set `task.md` `awaiting: user-approval` and stop. |
 | `awaiting-input` | Open question(s) remain, or a user-choice prompt is required. | Set `task.md` `awaiting: user-input` and stop. |
@@ -37,7 +37,7 @@ Every phase dispatch ends with exactly one verdict:
 
 ## Phase transition table
 
-`hyper` applies this table when a phase returns `phase-complete`:
+`hyper-build` applies this table when a phase returns `phase-complete`:
 
 | From phase | Scope / classifier | Next phase |
 |------------|--------------------|------------|
@@ -57,7 +57,7 @@ Every phase dispatch ends with exactly one verdict:
 
 The standalone `scope: code-review` path is not in this table: per the
 ownership split above, `hyper-code-review` owns terminal `phase: done` and the
-archive move directly, so `hyper` never applies a transition for that scope.
+archive move directly, so `hyper-build` never applies a transition for that scope.
 See `hyper-code-review/SKILL.md` §Return contract.
 
 After a phase-complete transition, immediately re-enter dispatch for the next
@@ -67,7 +67,7 @@ is mechanically determined.
 
 For `redirect`:
 
-| From phase | Verdict | `hyper` sets |
+| From phase | Verdict | `hyper-build` sets |
 |------------|---------|--------------|
 | `execution-plan` | `redirect target: spec` | `phase: spec`, `awaiting: null` |
 | `execution-plan` | `redirect target: technical-plan` | `phase: technical-plan`, `awaiting: null` |
@@ -86,7 +86,7 @@ When a gate is open, treat these as substantive replies:
 
 ## Behavior when a gate is open
 
-### `hyper`
+### `hyper-build`
 
 - If exactly one active task has an open gate and the new user message is a
   substantive reply, clear `task.md` `awaiting` and re-dispatch the current
@@ -194,22 +194,22 @@ exactly one of:
 For blocked verify results:
 
 - `hyper-verify` writes `checks.md` and returns `redirect target: implement`
-- `hyper` sets `phase: implement` and `awaiting: null`
+- `hyper-build` sets `phase: implement` and `awaiting: null`
 - `checks.md` is the remediation source for the immediate next implement
   dispatch
 
 For blocked implement results from plan conflicts:
 
 - `hyper-implement` writes `plan-conflict.md` and returns `redirect target: technical-plan`
-- `hyper` sets `phase: technical-plan` and `awaiting: null`
+- `hyper-build` sets `phase: technical-plan` and `awaiting: null`
 - `plan-conflict.md` is the remediation source for the immediate next
   technical-plan dispatch
 
 ## Subtask-level awaiting propagation
 
 - `hyper-implement` detects blocked subtasks and returns `awaiting-input`
-- `hyper` sets `task.md` `awaiting: user-input`
-- on the user's reply, `hyper` re-dispatches `hyper-implement`
+- `hyper-build` sets `task.md` `awaiting: user-input`
+- on the user's reply, `hyper-build` re-dispatches `hyper-implement`
 - `hyper-implement` records the user's answer in the subtask's `## Open
   questions` and re-dispatches `hyper-worker`
 - the worker clears its own `awaiting` on resumption per its Flow step 2;
@@ -221,14 +221,14 @@ For plan-conflict subtasks:
 - `hyper-implement` detects subtasks with `awaiting: plan-conflict`, rolls
   them up into `plan-conflict.md`, and returns `redirect target:
   technical-plan`
-- `hyper` sets `task.md` `phase: technical-plan` and `awaiting: null`
-- `hyper` dispatches `hyper-technical-plan` immediately; that phase reads
+- `hyper-build` sets `task.md` `phase: technical-plan` and `awaiting: null`
+- `hyper-build` dispatches `hyper-technical-plan` immediately; that phase reads
   `plan-conflict.md` before revising the plan
 
 ## Never do this
 
 - Phase skills never write `task.md` `phase:` or `awaiting:`
-- `hyper` never clears a gate without a substantive user reply
+- `hyper-build` never clears a gate without a substantive user reply
 - Do not batch multiple open questions into one message
 - Do not maintain hidden gate state outside the files
-- Do not chain phase skills directly; transitions always go through `hyper`
+- Do not chain phase skills directly; transitions always go through `hyper-build`

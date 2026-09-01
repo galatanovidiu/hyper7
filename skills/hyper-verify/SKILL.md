@@ -27,7 +27,7 @@ reading or writing `.hyper/` paths. The data model is in
 ## Output
 
 - `checks.md`
-- A verdict to `hyper`
+- A verdict to `hyper-build`
 
 ## Flow
 

@@ -6,11 +6,11 @@ Four rules, **G1** through **G4**. Each states the rule, why it exists, and the 
 
 ## G1 — `task.md` orchestration boundary
 
-**Rule.** Sub-agents must not write `task.md` `phase:` or `awaiting:`. Those fields belong to `hyper`.
+**Rule.** Sub-agents must not write `task.md` `phase:` or `awaiting:`. Those fields belong to `hyper-build`.
 
-**Why.** `hyper` is the single place that routes phase transitions and propagates gate state; a sub-agent that writes these fields can move a task out from under the orchestrator and desync `awaiting` from the real gate source.
+**Why.** `hyper-build` is the single place that routes phase transitions and propagates gate state; a sub-agent that writes these fields can move a task out from under the orchestrator and desync `awaiting` from the real gate source.
 
-**Safe alternative.** Return a verdict per `gates.md` — `awaiting-input`, `awaiting-approval`, `phase-complete`, or `redirect target: <phase>` as defined by the caller skill's return contract — and let `hyper` propagate it. Sub-agents owning a subtask file (e.g. a worker) may still write that file's own `status:` and `awaiting:` per their skill contract; those are phase-internal, not top-level workflow state.
+**Safe alternative.** Return a verdict per `gates.md` — `awaiting-input`, `awaiting-approval`, `phase-complete`, or `redirect target: <phase>` as defined by the caller skill's return contract — and let `hyper-build` propagate it. Sub-agents owning a subtask file (e.g. a worker) may still write that file's own `status:` and `awaiting:` per their skill contract; those are phase-internal, not top-level workflow state.
 
 ## G2 — Provenance hygiene in shipped content
 

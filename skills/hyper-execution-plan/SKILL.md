@@ -30,7 +30,7 @@ reading or writing `.hyper/` paths. The data model is in
 - `04-execution-plan.md`
 - `T<N>.<M>-<slug>.md` subtask files
 - `05-execution-plan-review.md`
-- A verdict to `hyper`
+- A verdict to `hyper-build`
 
 ## Flow
 

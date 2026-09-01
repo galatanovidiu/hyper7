@@ -75,10 +75,10 @@ Create a tracked task the user does not want to start yet.
    - `awaiting: null`
 5. Seed `dashboard.md` from `../hyper-build/templates/dashboard.md`, filling `## Goal`
    from the task body and leaving other computed sections as placeholders.
-6. Report: `Created T<N> — <title> (deferred). Invoke hyper T<N> when ready.`
+6. Report: `Created T<N> — <title> (deferred). Invoke hyper-build T<N> when ready.`
 
 Do not start the workflow. Deferred tasks enter `intake` only when the user
-starts them through `hyper`.
+starts them through `hyper-build`.
 
 ### Defer
 

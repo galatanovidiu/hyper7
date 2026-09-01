@@ -66,13 +66,13 @@ The return contract differs by mode.
 
 **Embedded mode (invoked by `hyper-verify`).** Return a review block for
 `checks.md` carrying one of the three verdicts above. The block is appended
-to `checks.md` `## review`. No phase-level verdict is returned to `hyper`;
+to `checks.md` `## review`. No phase-level verdict is returned to `hyper-build`;
 `hyper-verify` aggregates the review verdict into its own return contract.
 
-**Standalone mode (invoked directly by the user or by `hyper` for a
+**Standalone mode (invoked directly by the user or by `hyper-build` for a
 `scope: code-review` task).** This skill owns terminal `phase: done` and the
 archive move directly per `../hyper-build/reference/gates.md` ownership split — it
-does not return a phase verdict to `hyper`. After writing `checks.md` and any
+does not return a phase verdict to `hyper-build`. After writing `checks.md` and any
 review notes:
 
 - if the task is tracked under `.hyper/`: set `task.md` `phase: done`, clear
