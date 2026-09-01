@@ -296,26 +296,28 @@ function validateHyperMemoryRegistration() {
 }
 
 function validateHyper() {
+  // Asserts the adaptive loop skill's contract. Upstream commit 5c83fec rewrote
+  // both SKILL.md and templates/loop.md ("half the ceremony") without updating
+  // these assertions, so this block described a contract that no longer existed
+  // and upstream main shipped 31 validation failures. Retargeted at the shipped
+  // rewrite; every needle below was checked against the real file.
   const requiredTemplateSections = [
     "## Goal",
+    "## Constraints",
+    "## Non-negotiables",
     "## Definition of done",
-    "## Task understanding",
-    "## Existing code and findings",
+    "## Understanding",
     "## Authority",
     "## Loop plan",
-    "## Current route",
-    "## Current focus",
-    "## Current bar",
+    "## Route",
     "## Parts",
-    "## Part alignment",
+    "## Decisions",
     "## Evidence digest",
     "## Relevant artifacts",
-    "## Bar history",
-    "## Route shifts",
-    "## Decisions",
     "## Starting point",
     "## Cycles",
     "## Handoff cues",
+    "## Verified outcomes",
     "## Outcome",
   ];
 
@@ -334,36 +336,48 @@ function validateHyper() {
     ensureContains(HYPER_TEMPLATE, needle);
   }
 
-  ensureContains(HYPER_TEMPLATE, "Status: awaiting approval");
+  // Authority block defaults.
   ensureContains(HYPER_TEMPLATE, "Mode: interactive");
   ensureContains(HYPER_TEMPLATE, "Delegated authority: none");
   ensureContains(HYPER_TEMPLATE, "Decision proxies: none");
-  ensureContains(HYPER_TEMPLATE, "Approval source: Not yet.");
-  ensureContains(HYPER_TEMPLATE, "Approved at: Not yet.");
-  ensureContains(HYPER_TEMPLATE, "### P1 — Whole goal");
-  ensureContains(HYPER_TEMPLATE, "#### Understanding");
-  ensureContains(HYPER_TEMPLATE, "#### Existing code and findings");
-  ensureContains(HYPER_TEMPLATE, "#### Part plan");
-  ensureContains(HYPER_TEMPLATE, "**Intent:** <probe | implement | validate | reroute | reframe | stop>");
-  ensureContains(HYPER_TEMPLATE, "**Prior belief:** <What I expected before this cycle.");
-  ensureContains(HYPER_TEMPLATE, "**Route impact:** <How this changes the route or parts.");
-  ensureContains(HYPER_TEMPLATE, "- P1 — Whole goal — aligning");
-  ensureContains(HYPER_TEMPLATE, "- Next atomic move: Not filled yet.");
+
+  // Gate state lives on the loop plan and on each part block. `Approved: no`
+  // and `Pressure-tested: no` replaced the old Status / Approval source /
+  // Approved at triple.
+  ensureContains(HYPER_TEMPLATE, "Approved: no");
+  ensureContains(HYPER_TEMPLATE, "Pressure-tested: no");
+
+  // Exactly one part is `current`; the seeded single part is P1.
+  ensureContains(HYPER_TEMPLATE, "### P1 — Whole goal — current");
+
+  // Cycle entry shape — the five ordered fields and their legal values.
+  ensureContains(HYPER_TEMPLATE, "**Intent:** probe | implement | validate | reroute | reframe | stop");
+  ensureContains(HYPER_TEMPLATE, "**Move:**");
+  ensureContains(HYPER_TEMPLATE, "**Evidence:**");
+  ensureContains(HYPER_TEMPLATE, "**Learning:**");
+  ensureContains(HYPER_TEMPLATE, "**Next:** continue | back up | split | pause | close | reframe");
+
+  ensureContains(HYPER_TEMPLATE, "- Next atomic move: TBD");
   ensureContains(HYPER_TEMPLATE, "- Dirty or unvalidated state: none");
 
-  ensureContains(HYPER_SKILL, "**Alignment gate.**");
-  ensureContains(HYPER_SKILL, "**On resume:**");
-  ensureContains(HYPER_SKILL, "**Hot** (always):");
-  ensureContains(HYPER_SKILL, "**Warm** (when the next move needs more):");
-  ensureContains(HYPER_SKILL, "**Cold** (on demand only):");
+  // The four phases are the skill's spine.
+  ensureContains(HYPER_SKILL, "## Phase 1 — Load and Route");
+  ensureContains(HYPER_SKILL, "## Phase 2 — Align");
+  ensureContains(HYPER_SKILL, "## Phase 3 — Cycle");
+  ensureContains(HYPER_SKILL, "## Phase 4 — Verify and Close");
+
+  ensureContains(HYPER_SKILL, "NO CYCLE BEFORE APPROVAL. NO `done` WITHOUT VERIFY.");
+  ensureContains(HYPER_SKILL, "**Gate.**");
+  ensureContains(HYPER_SKILL, "**On resume**, read in layers");
+  ensureContains(HYPER_SKILL, "hot (always)");
+  ensureContains(HYPER_SKILL, "Warm (when the next move needs more)");
+  ensureContains(HYPER_SKILL, "Cold (on demand)");
   ensureContains(HYPER_SKILL, ".hyper/loops/L<N>-<slug>/");
-  ensureContains(HYPER_SKILL, "No cycle starts before both gates are cleared.");
-  ensureContains(HYPER_SKILL, "Before work on `P<N>` starts, the part block must meet the current-part-block gate above");
   ensureContains(HYPER_SKILL, "## Delegation");
-  ensureContains(HYPER_SKILL, "## Authority Modes");
+  ensureContains(HYPER_SKILL, "## Authority");
   ensureContains(HYPER_SKILL, "YOLO mode");
-  ensureContains(HYPER_SKILL, "Approval source: delegated authority");
-  ensureContains(HYPER_SKILL, "Part statuses: `todo | aligning | doing | done`.");
+  ensureContains(HYPER_SKILL, "Approved: proxy <ts>");
+  ensureContains(HYPER_SKILL, "Part status (in the heading): `todo | current | done`");
 
   ensureContains(README, "/hyper L3");
   ensureContains(README, "user or delegated approval");
@@ -372,11 +386,11 @@ function validateHyper() {
 
   ensureContains(DATA_MODEL, "## `.hyper/loops/`");
   ensureContains(DATA_MODEL, "authority mode");
-  ensureContains(DATA_MODEL, "Approval source");
   ensureContains(DATA_MODEL, "loop plan");
-  ensureContains(DATA_MODEL, "part alignment");
   ensureContains(DATA_MODEL, "evidence digest");
   ensureContains(DATA_MODEL, "relevant artifacts");
+  ensureContains(DATA_MODEL, "parts (each part block");
+  ensureContains(DATA_MODEL, "pressure-test, and approval");
 }
 
 function validatePlanConflictRedirect() {
