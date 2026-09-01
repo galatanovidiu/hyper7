@@ -10,10 +10,10 @@ user-invocable: false
 You are in the **research** phase. Investigate the question and produce a
 recommendation, not an implementation plan.
 
-Resolve the Hyper state root per `../hyper/reference/state-root.md` before
+Resolve the Hyper state root per `../hyper-build/reference/state-root.md` before
 reading or writing `.hyper/` paths. The data model is in
-`../hyper/reference/data-model.md`. The gate contract is in
-`../hyper/reference/gates.md`.
+`../hyper-build/reference/data-model.md`. The gate contract is in
+`../hyper-build/reference/gates.md`.
 
 ## Inputs
 
@@ -45,11 +45,20 @@ reading or writing `.hyper/` paths. The data model is in
    codebase or public docs, answer it that way instead of asking.
 7. Return `awaiting-approval`.
 
+When returning `awaiting-approval`, make the approval gate explicit:
+`research.md is ready. [RECOMMENDED — approve because <one-line reason from
+the recommendation and evidence>.] Reply approve or continue to accept it and
+archive the research task, or tell me what to change in research.md.`
+
 ## Rules
 
 - When the recommendation is settled, append a `## Decisions` entry
-  to `dashboard.md` per `../hyper/reference/dashboard.md` §Decisions
+  to `dashboard.md` per `../hyper-build/reference/dashboard.md` §Decisions
   log contract, authoring as `research`.
+- When a durable learning surfaces, record it in
+  `.hyper/memory/` per the contract in
+  `../hyper-memory/reference/memory.md`, writing the entry inline rather
+  than invoking the `hyper-memory` skill.
 
 ## Return contract
 

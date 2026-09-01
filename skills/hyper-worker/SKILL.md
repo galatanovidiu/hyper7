@@ -9,9 +9,9 @@ user-invocable: false
 
 Implement exactly one subtask.
 
-Resolve the Hyper state root per `../hyper/reference/state-root.md` before
+Resolve the Hyper state root per `../hyper-build/reference/state-root.md` before
 reading or writing `.hyper/` paths. Read
-`../hyper/reference/worker-guardrails.md` before editing code.
+`../hyper-build/reference/worker-guardrails.md` before editing code.
 
 ## Inputs
 
@@ -76,6 +76,9 @@ reading or writing `.hyper/` paths. Read
 - Do not work around a broken plan assumption silently. The plan-conflict
   channel exists so the design phase can revise; bypassing it loses the
   design escalation signal.
+- When a durable learning surfaces, record it in `.hyper/memory/`
+  per the contract in `../hyper-memory/reference/memory.md`, writing the entry
+  inline rather than invoking the `hyper-memory` skill.
 
 ## Return contract
 
