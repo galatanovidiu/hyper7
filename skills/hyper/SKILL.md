@@ -62,6 +62,8 @@ Read `.hyper/rules.md` (project rules — normative when present) and, when the 
 
 **On resume**, read in layers: hot (always) — every section from `## Goal` through `## Route` (including `## Authority`), the current part block, `## Evidence digest`, `## Handoff cues`. Warm (when the next move needs more) — other part blocks, recent `## Decisions` entries, `## Starting point`, last 3 cycles, latest verify entry, `## Outcome`. Cold (on demand) — older cycles, archive, artifact files.
 
+**Legacy loops.** A loop created before this skill was rebuilt uses a different body layout — its frontmatter still parses, so the probe lists it normally. Detect it and read it per `reference/legacy-loops.md`, which maps the retired sections, translates the old three-line approval block into the current gate (an already-approved part is never re-approved), and states how to write to the file without restructuring it. Legacy loops are worked in place; there is no migration step.
+
 **Interrupt repair.** If the last cycle entry lacks `Next`, the session died mid-write. The one exception to append-only: complete that entry in place with what you know — prose fields may say `interrupted`; when the real next move is unknown, set `Next: back up`. Never start a new cycle over an incomplete one. If part statuses are inconsistent on resume (zero or two `current` parts), repair from the last cycle and `## Handoff cues`, and log the repair in `## Decisions`.
 
 As work progresses, promote durable signal upward: load-bearing choices and route changes → `## Decisions`, still-relevant findings → `## Evidence digest`, restart-critical notes → `## Handoff cues`.

@@ -302,6 +302,60 @@ probe, which upstream never had. `schema.md`, the presentation, `package.json`,
 
 25 skills total.
 
+## Compatibility with existing projects
+
+Checked against real `.hyper/` state in 21 projects on one machine, the largest
+holding 53 active / 102 archived tasks.
+
+**Tasks — safe.** The probe reads existing task folders, allocates ids correctly,
+and reports no parse errors on the large trees. Tasks whose frontmatter predates
+the current model, or comes from a different tool entirely (`type` / `status` /
+`priority` / `depends` / `done_when`, no `phase:`), are surfaced as
+`phase_known: false` with `category: unknown`; the router stops and asks rather
+than guessing. Legacy phase values seen in the wild: `in-progress`, `discover`.
+One `task.md` with no opening `---` shows up in `parse_errors`. Nothing is
+silently mangled.
+
+**Loops — read in place via a compat contract.** Upstream's CHANGELOG calls the
+rebuild "breaking for in-flight loops" and ships no migration; `state-recovery.md`
+has zero loop coverage. 21 pre-rewrite loop files were found on disk, 6 still `active`
+(4 of those with recorded cycles). Their frontmatter is unchanged, so the probe lists them normally, but
+the body differs in nine sections and in all gate fields.
+
+Rather than migrate user data, `skills/hyper/reference/legacy-loops.md` is the
+read contract: detection rule, section mapping, gate translation, and rules for
+writing without restructuring the file. The important part is that an
+already-approved legacy part clears the gate on its recorded approval alone —
+work the user approved is never re-approved just because the layout changed.
+
+An earlier pass reported 15 files. That was an undercount: both scans used
+`find -maxdepth 7`, which silently excluded a project nested one level deeper
+(`Work/Bot/Conta/conta`, six loops). Re-running without a depth limit found 21.
+The coverage result was unchanged — zero unmapped sections either way — but the
+lesson is that a depth-limited scan is not evidence of absence.
+
+The contract was written against the real files, and two of its claims were
+corrected by them: `## Starting point` turned out to be present in 20 of the 21
+loops (the first draft said it was usually absent), and the only gate values that
+actually occur are `Status: approved` / `Approval source: user` and
+`Status: awaiting approval` / `Approval source: Not yet.`. A coverage pass
+confirmed every section appearing in any real legacy loop is either still in the
+current template or mapped in the contract — zero gaps.
+
+`validateLegacyLoopContract()` guards it: the skill must reference the contract,
+every retired section must stay mapped, the three-line approval block must stay
+translated, and the legacy part-status vocabulary must stay documented. Dropping
+another section from the template without mapping it now fails validation.
+
+**Memory — needed conversion.** Projects on the old flat `.hyper/memory.md` report
+`learnings.exists: false`, because the probe looks for `.hyper/memory/index.md`.
+Content is not lost, just unread. Converting is a per-project data change, not a
+repo change: the old layout groups entries under `## Decisions` / `## Patterns` /
+`## Lessons` with `### [date] [ref] Title` headings, while the new one wants one
+file per entry plus an index, imperative bodies, a `Why:` line, and no
+session-ephemeral identifiers (`[T7]`, `[I:5]`) — so it is a judgement pass, not a
+regex. Keep the original as `memory.md.bak`.
+
 ## Deliberately left alone
 
 - **`CHANGELOG.md`** keeps its `hyper-iterate` mentions — a historical record of

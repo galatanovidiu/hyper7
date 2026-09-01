@@ -16,6 +16,7 @@ const README = path.join(ROOT, "README.md");
 const DATA_MODEL = path.join(ROOT, "skills", "hyper-build", "reference", "data-model.md");
 const HYPER_SKILL = path.join(ROOT, "skills", "hyper", "SKILL.md");
 const HYPER_TEMPLATE = path.join(ROOT, "skills", "hyper", "templates", "loop.md");
+const HYPER_LEGACY_LOOPS = path.join(ROOT, "skills", "hyper", "reference", "legacy-loops.md");
 const HYPER_TECHNICAL_PLAN_TEMPLATE = path.join(ROOT, "skills", "hyper-technical-plan", "templates", "03-technical-plan.md");
 const HYPER_TECHNICAL_PLAN_BUGFIX_TEMPLATE = path.join(ROOT, "skills", "hyper-technical-plan", "templates", "03-technical-plan-bugfix.md");
 const HYPER_BUILD_SKILL = path.join(ROOT, "skills", "hyper-build", "SKILL.md");
@@ -858,6 +859,58 @@ function validateHyperHelp() {
   }
 }
 
+// Loops written before the skill was rebuilt stay on disk in real projects and
+// are read in place via reference/legacy-loops.md. These assertions keep that
+// contract honest: the skill must point at it, and every retired section name
+// must still be mapped there. Dropping another section from the template without
+// mapping it silently breaks resume on existing loops.
+function validateLegacyLoopContract() {
+  if (!ensureFile(HYPER_LEGACY_LOOPS)) return;
+  const shim = read(HYPER_LEGACY_LOOPS);
+  const skill = read(HYPER_SKILL);
+  const template = read(HYPER_TEMPLATE);
+
+  if (!skill.includes("reference/legacy-loops.md")) {
+    fail(
+      `${relativeToRoot(HYPER_SKILL)}: does not reference reference/legacy-loops.md — legacy loops would be read against the current layout`,
+    );
+  }
+
+  // Sections observed in real pre-rewrite loop files. Each must either still be
+  // in the current template or be mapped in the shim.
+  const retired = [
+    "## Why",
+    "## Task understanding",
+    "## Existing code and findings",
+    "## Current route",
+    "## Current focus",
+    "## Current bar",
+    "## Bar history",
+    "## Part alignment",
+    "## Route shifts",
+  ];
+  for (const section of retired) {
+    if (template.includes(`${section}\n`)) continue; // came back into the template
+    if (!shim.includes(section)) {
+      fail(
+        `${relativeToRoot(HYPER_LEGACY_LOOPS)}: retired section ${JSON.stringify(section)} is not mapped — loops on disk still carry it`,
+      );
+    }
+  }
+
+  // The old three-line approval block must be translated, not re-gated.
+  for (const needle of ["Approval source:", "Approved at:", "Status: approved", "Status: awaiting approval"]) {
+    if (!shim.includes(needle)) {
+      fail(`${relativeToRoot(HYPER_LEGACY_LOOPS)}: missing gate translation for ${JSON.stringify(needle)}`);
+    }
+  }
+
+  // Legacy part statuses differ from the current set.
+  if (!shim.includes("todo | aligning | doing | done")) {
+    fail(`${relativeToRoot(HYPER_LEGACY_LOOPS)}: missing the legacy part-status vocabulary`);
+  }
+}
+
 function main() {
   validateSkillFiles();
   validateReadmeAndDataModel();
@@ -866,6 +919,7 @@ function main() {
   validatePlanConflictRedirect();
   validateGateMessaging();
   validateHyperHelp();
+  validateLegacyLoopContract();
   validateInstallHyperCopies();
   validateStateProbe();
 
