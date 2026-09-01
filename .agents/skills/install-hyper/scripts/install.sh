@@ -14,6 +14,7 @@
 #   ~/.codex/skills        # Codex
 #   ~/.agents/skills       # agent-common location
 #   ~/.pi/agent/skills     # PI
+#   ~/.gemini/skills       # Gemini CLI
 #
 # Override with HYPER_INSTALL_TARGETS — colon-separated list of absolute paths:
 #   HYPER_INSTALL_TARGETS=/path/one:/path/two ./install.sh install
@@ -41,6 +42,7 @@ default_targets=(
   "$HOME/.codex/skills"
   "$HOME/.agents/skills"
   "$HOME/.pi/agent/skills"
+  "$HOME/.gemini/skills"
 )
 
 if [ -n "${HYPER_INSTALL_TARGETS:-}" ]; then

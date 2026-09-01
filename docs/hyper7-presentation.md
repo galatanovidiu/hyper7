@@ -58,7 +58,7 @@ Most AI workflow tools are coupled to a specific agent (Claude, GPT, Codex). Swi
 ## 3. Core Concepts
 
 ### Skills
-A Skill is a folder with a `SKILL.md` file — markdown instructions the agent reads before executing a phase. Hyper ships 21 skills. Each skill is either user-invocable (appears in the `/` command menu) or internal (invoked only by other skills).
+A Skill is a folder with a `SKILL.md` file — markdown instructions the agent reads before executing a phase. Hyper ships 25 skills. Each skill is either user-invocable (appears in the `/` command menu) or internal (invoked only by other skills).
 
 ### Tasks
 A task is a folder under `.hyper/tasks/` with a canonical `task.md` (frontmatter: id, title, phase, scope, bugfix). Each phase writes its own artifact into that folder.
@@ -152,8 +152,10 @@ State lives in `.hyper/loops/L<N>-<slug>/loop.md` — append-only, fully auditab
 hyper7E/
 ├── README.md                    ← User-facing overview
 ├── schema.md                    ← Full state model spec
-├── skills/                      ← 21 shipped skill folders
-│   ├── hyper/                   ← Master orchestrator
+├── skills/                      ← 25 shipped skill folders
+│   ├── hyper/                   ← OODA loop orchestrator (default entry)
+│   ├── hyper-build/             ← Phased task router
+│   │     └── scripts/state.mjs  ← read-only state probe, shared by all entry points
 │   ├── hyper-intake/
 │   ├── hyper-spec/
 │   ├── hyper-technical-plan/
@@ -162,11 +164,11 @@ hyper7E/
 │   ├── hyper-worker/            ← Executes one subtask
 │   ├── hyper-verify/
 │   ├── hyper-docs/
-│   ├── hyper/                   ← OODA loop orchestrator (default entry)
-│   ├── hyper-build/             ← Phased task router
+│   ├── hyper-memory/            ← Durable project learnings
+│   ├── hyper-digest/            ← Scannable output mode
 │   ├── hyper-jira/              ← Jira integration
 │   ├── hyper-sync/              ← Team sync
-│   └── ... (9 more)
+│   └── ... (11 more)
 ├── scripts/
 │   ├── deploy.sh                ← Symlink skills to all agents
 │   └── validate-hyper.mjs      ← Structural integrity check
