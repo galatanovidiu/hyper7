@@ -14,6 +14,7 @@
 #   ~/.codex/skills        # Codex
 #   ~/.agents/skills       # agent-common location
 #   ~/.pi/agent/skills     # PI
+#   ~/.gemini/skills       # Gemini CLI
 #
 # Override with HYPER_INSTALL_TARGETS — colon-separated list of absolute paths:
 #   HYPER_INSTALL_TARGETS=/path/one:/path/two ./install.sh install
@@ -41,6 +42,7 @@ default_targets=(
   "$HOME/.codex/skills"
   "$HOME/.agents/skills"
   "$HOME/.pi/agent/skills"
+  "$HOME/.gemini/skills"
 )
 
 if [ -n "${HYPER_INSTALL_TARGETS:-}" ]; then
@@ -552,7 +554,13 @@ run_hook_merge() {
     return 0
   fi
   local program rc
-  program="$(mktemp -t hyper-hook-merge.XXXXXX.mjs)"
+  # BSD/macOS `mktemp -t` appends its random suffix at the END of the template,
+  # so `hyper-hook-merge.XXXXXX.mjs` yields `...mjs.AbC123` and node rejects the
+  # unknown extension. Create the file without an extension, then rename, which
+  # behaves the same on BSD and GNU.
+  program="$(mktemp -t hyper-hook-merge.XXXXXX)"
+  mv "$program" "$program.mjs"
+  program="$program.mjs"
   hook_node_source >"$program"
   set +e
   HYPER_SETTINGS_FILE="$settings_file" HYPER_RECALL_CMD="$recall_hook_command" \

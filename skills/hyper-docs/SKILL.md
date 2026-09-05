@@ -44,6 +44,6 @@ reading or writing `.hyper/` paths.
 ## Return contract
 
 - `awaiting-input` — docs revealed a product or implementation problem; the
-  issue is recorded in `checks.md` `## docs` for `hyper` to surface
+  issue is recorded in `checks.md` `## docs` for `hyper-build` to surface
 - `phase-complete` — docs updated (or rationale recorded for no-op) and
   `## docs` appended to `checks.md`

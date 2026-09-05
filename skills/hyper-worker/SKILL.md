@@ -82,7 +82,7 @@ reading or writing `.hyper/` paths. Read
 
 ## Return contract
 
-A worker never returns a phase-level verdict to `hyper`; it mutates exactly
+A worker never returns a phase-level verdict to `hyper-build`; it mutates exactly
 one subtask file and exits. `hyper-implement` reads the subtask's final state
 and rolls it up into the phase verdict per its own return contract.
 

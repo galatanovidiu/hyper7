@@ -98,7 +98,8 @@ Missing data emits `_not yet written_` for `Goal`, `Plan`, and `Progress`, and
 ### `## Status`
 
 - Source: `task.md` frontmatter
-- Rule: `**Phase:** <phase> · **Awaiting:** <awaiting or "none">`
+
+- Rule: `**Phase:** <phase> · **Awaiting:** <awaiting or none>`. When `task.md` has an `epic:` field present, append `· **Epic:** <value>` to the line. When `epic:` is absent, the line is unchanged. When `task.md` has `yolo: true`, append `· **YOLO:** on` to the line.
 
 ### `## Decisions`
 
@@ -108,7 +109,7 @@ Missing data emits `_not yet written_` for `Goal`, `Plan`, and `Progress`, and
 
 ## Regeneration triggers
 
-`hyper` regenerates `dashboard.md`:
+`hyper-build` regenerates `dashboard.md`:
 
 1. after task creation
 2. after every phase return, after applying the verdict and any phase

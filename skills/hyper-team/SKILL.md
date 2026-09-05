@@ -22,7 +22,7 @@ Delegate tasks to AI agent teammates via natural language.
 
 Verification is non-negotiable. Every teammate finding is checked against the codebase before it reaches the user. Fixes are never auto-applied from a review — findings are presented, the user decides.
 
-This skill is **human-triggered only**. Invoke it directly with any goal. It does not run as part of any workflow and is not auto-invoked by other skills (including the `hyper` phase skills). If you want structured task work, use the `hyper` skill instead — `hyper-team` is a standalone tool for getting a teammate involved on demand.
+This skill is **human-triggered only**. Invoke it directly with any goal. It does not run as part of any workflow and is not auto-invoked by other skills (including the `hyper-build` phase skills). If you want structured task work, use the `hyper-build` skill instead — `hyper-team` is a standalone tool for getting a teammate involved on demand.
 
 ## Core concept
 

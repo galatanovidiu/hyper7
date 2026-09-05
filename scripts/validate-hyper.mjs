@@ -16,9 +16,11 @@ const README = path.join(ROOT, "README.md");
 const DATA_MODEL = path.join(ROOT, "skills", "hyper-build", "reference", "data-model.md");
 const HYPER_SKILL = path.join(ROOT, "skills", "hyper", "SKILL.md");
 const HYPER_TEMPLATE = path.join(ROOT, "skills", "hyper", "templates", "loop.md");
+const HYPER_LEGACY_LOOPS = path.join(ROOT, "skills", "hyper", "reference", "legacy-loops.md");
 const HYPER_TECHNICAL_PLAN_TEMPLATE = path.join(ROOT, "skills", "hyper-technical-plan", "templates", "03-technical-plan.md");
 const HYPER_TECHNICAL_PLAN_BUGFIX_TEMPLATE = path.join(ROOT, "skills", "hyper-technical-plan", "templates", "03-technical-plan-bugfix.md");
 const HYPER_BUILD_SKILL = path.join(ROOT, "skills", "hyper-build", "SKILL.md");
+const HYPER_HELP_SKILL = path.join(ROOT, "skills", "hyper-help", "SKILL.md");
 const HYPER_BUILD_GATES = path.join(ROOT, "skills", "hyper-build", "reference", "gates.md");
 const HYPER_IMPLEMENT_SKILL = path.join(ROOT, "skills", "hyper-implement", "SKILL.md");
 const HYPER_WORKER_SKILL = path.join(ROOT, "skills", "hyper-worker", "SKILL.md");
@@ -43,6 +45,9 @@ const USER_FACING_HYPER = new Set([
   "hyper-short-story",
   "hyper-digest",
   "hyper-memory",
+  "hyper-jira",
+  "hyper-sync",
+  "hyper-help",
 ]);
 
 const INTERNAL_HYPER = new Set([
@@ -230,7 +235,7 @@ function validateReadmeAndDataModel() {
   ensureContains(README, "Workflow 1 — `hyper` (adaptive)");
   ensureContains(README, "Workflow 2 — `hyper-build` (phased)");
 
-  ensureContains(DATA_MODEL, "Users invoke twelve Hyper skills directly");
+  ensureContains(DATA_MODEL, "Users invoke fifteen Hyper skills directly");
   ensureContains(DATA_MODEL, "`hyper-build`");
   ensureContains(
     DATA_MODEL,
@@ -293,26 +298,28 @@ function validateHyperMemoryRegistration() {
 }
 
 function validateHyper() {
+  // Asserts the adaptive loop skill's contract. Upstream commit 5c83fec rewrote
+  // both SKILL.md and templates/loop.md ("half the ceremony") without updating
+  // these assertions, so this block described a contract that no longer existed
+  // and upstream main shipped 31 validation failures. Retargeted at the shipped
+  // rewrite; every needle below was checked against the real file.
   const requiredTemplateSections = [
     "## Goal",
+    "## Constraints",
+    "## Non-negotiables",
     "## Definition of done",
-    "## Task understanding",
-    "## Existing code and findings",
+    "## Understanding",
     "## Authority",
     "## Loop plan",
-    "## Current route",
-    "## Current focus",
-    "## Current bar",
+    "## Route",
     "## Parts",
-    "## Part alignment",
+    "## Decisions",
     "## Evidence digest",
     "## Relevant artifacts",
-    "## Bar history",
-    "## Route shifts",
-    "## Decisions",
     "## Starting point",
     "## Cycles",
     "## Handoff cues",
+    "## Verified outcomes",
     "## Outcome",
   ];
 
@@ -331,36 +338,48 @@ function validateHyper() {
     ensureContains(HYPER_TEMPLATE, needle);
   }
 
-  ensureContains(HYPER_TEMPLATE, "Status: awaiting approval");
+  // Authority block defaults.
   ensureContains(HYPER_TEMPLATE, "Mode: interactive");
   ensureContains(HYPER_TEMPLATE, "Delegated authority: none");
   ensureContains(HYPER_TEMPLATE, "Decision proxies: none");
-  ensureContains(HYPER_TEMPLATE, "Approval source: Not yet.");
-  ensureContains(HYPER_TEMPLATE, "Approved at: Not yet.");
-  ensureContains(HYPER_TEMPLATE, "### P1 — Whole goal");
-  ensureContains(HYPER_TEMPLATE, "#### Understanding");
-  ensureContains(HYPER_TEMPLATE, "#### Existing code and findings");
-  ensureContains(HYPER_TEMPLATE, "#### Part plan");
-  ensureContains(HYPER_TEMPLATE, "**Intent:** <probe | implement | validate | reroute | reframe | stop>");
-  ensureContains(HYPER_TEMPLATE, "**Prior belief:** <What I expected before this cycle.");
-  ensureContains(HYPER_TEMPLATE, "**Route impact:** <How this changes the route or parts.");
-  ensureContains(HYPER_TEMPLATE, "- P1 — Whole goal — aligning");
-  ensureContains(HYPER_TEMPLATE, "- Next atomic move: Not filled yet.");
+
+  // Gate state lives on the loop plan and on each part block. `Approved: no`
+  // and `Pressure-tested: no` replaced the old Status / Approval source /
+  // Approved at triple.
+  ensureContains(HYPER_TEMPLATE, "Approved: no");
+  ensureContains(HYPER_TEMPLATE, "Pressure-tested: no");
+
+  // Exactly one part is `current`; the seeded single part is P1.
+  ensureContains(HYPER_TEMPLATE, "### P1 — Whole goal — current");
+
+  // Cycle entry shape — the five ordered fields and their legal values.
+  ensureContains(HYPER_TEMPLATE, "**Intent:** probe | implement | validate | reroute | reframe | stop");
+  ensureContains(HYPER_TEMPLATE, "**Move:**");
+  ensureContains(HYPER_TEMPLATE, "**Evidence:**");
+  ensureContains(HYPER_TEMPLATE, "**Learning:**");
+  ensureContains(HYPER_TEMPLATE, "**Next:** continue | back up | split | pause | close | reframe");
+
+  ensureContains(HYPER_TEMPLATE, "- Next atomic move: TBD");
   ensureContains(HYPER_TEMPLATE, "- Dirty or unvalidated state: none");
 
-  ensureContains(HYPER_SKILL, "**Alignment gate.**");
-  ensureContains(HYPER_SKILL, "**On resume:**");
-  ensureContains(HYPER_SKILL, "**Hot** (always):");
-  ensureContains(HYPER_SKILL, "**Warm** (when the next move needs more):");
-  ensureContains(HYPER_SKILL, "**Cold** (on demand only):");
+  // The four phases are the skill's spine.
+  ensureContains(HYPER_SKILL, "## Phase 1 — Load and Route");
+  ensureContains(HYPER_SKILL, "## Phase 2 — Align");
+  ensureContains(HYPER_SKILL, "## Phase 3 — Cycle");
+  ensureContains(HYPER_SKILL, "## Phase 4 — Verify and Close");
+
+  ensureContains(HYPER_SKILL, "NO CYCLE BEFORE APPROVAL. NO `done` WITHOUT VERIFY.");
+  ensureContains(HYPER_SKILL, "**Gate.**");
+  ensureContains(HYPER_SKILL, "**On resume**, read in layers");
+  ensureContains(HYPER_SKILL, "hot (always)");
+  ensureContains(HYPER_SKILL, "Warm (when the next move needs more)");
+  ensureContains(HYPER_SKILL, "Cold (on demand)");
   ensureContains(HYPER_SKILL, ".hyper/loops/L<N>-<slug>/");
-  ensureContains(HYPER_SKILL, "No cycle starts before both gates are cleared.");
-  ensureContains(HYPER_SKILL, "Before work on `P<N>` starts, the part block must meet the current-part-block gate above");
   ensureContains(HYPER_SKILL, "## Delegation");
-  ensureContains(HYPER_SKILL, "## Authority Modes");
+  ensureContains(HYPER_SKILL, "## Authority");
   ensureContains(HYPER_SKILL, "YOLO mode");
-  ensureContains(HYPER_SKILL, "Approval source: delegated authority");
-  ensureContains(HYPER_SKILL, "Part statuses: `todo | aligning | doing | done`.");
+  ensureContains(HYPER_SKILL, "Approved: proxy <ts>");
+  ensureContains(HYPER_SKILL, "Part status (in the heading): `todo | current | done`");
 
   ensureContains(README, "/hyper L3");
   ensureContains(README, "user or delegated approval");
@@ -369,11 +388,11 @@ function validateHyper() {
 
   ensureContains(DATA_MODEL, "## `.hyper/loops/`");
   ensureContains(DATA_MODEL, "authority mode");
-  ensureContains(DATA_MODEL, "Approval source");
   ensureContains(DATA_MODEL, "loop plan");
-  ensureContains(DATA_MODEL, "part alignment");
   ensureContains(DATA_MODEL, "evidence digest");
   ensureContains(DATA_MODEL, "relevant artifacts");
+  ensureContains(DATA_MODEL, "parts (each part block");
+  ensureContains(DATA_MODEL, "pressure-test, and approval");
 }
 
 function validatePlanConflictRedirect() {
@@ -527,6 +546,19 @@ function setupProbeFixture() {
     awaiting: "user-approval",
     created: "2026-05-25T00:00:00",
     bugfix: "false",
+  });
+  // Epic-enrolled folder: `E<M>T<N>-<slug>`. Its T number is the highest in the
+  // fixture, so it also pins id allocation — a probe that skips this form both
+  // hides the task and reissues T7.
+  writeTaskMd("tasks/E1T7-epic-enrolled", {
+    id: "T7",
+    title: "Epic-enrolled fixture",
+    phase: "technical-plan",
+    scope: "feature",
+    awaiting: "null",
+    created: "2026-05-26T00:00:00",
+    bugfix: "false",
+    epic: "E1",
   });
   writeTaskMd("archive/T1-archived", {
     id: "T1",
@@ -695,10 +727,10 @@ function validateStateProbeAgainstFixture() {
     const expect = (cond, msg) => { if (!cond) fail(`${where}: ${msg}`); };
 
     expect(snapshot.bootstrapped === true, `expected bootstrapped: true, got ${snapshot.bootstrapped}`);
-    expect(snapshot.next_task_id === 6, `expected next_task_id: 6 (max folder T5 + 1), got ${snapshot.next_task_id}`);
+    expect(snapshot.next_task_id === 8, `expected next_task_id: 8 (max folder T7, inside E1T7-, + 1), got ${snapshot.next_task_id}`);
     expect(snapshot.next_loop_id === 3, `expected next_loop_id: 3 (max folder L2 + 1), got ${snapshot.next_loop_id}`);
     expect(snapshot.next_backlog_id === 4, `expected next_backlog_id: 4 (max heading B3 + 1), got ${snapshot.next_backlog_id}`);
-    expect(snapshot.active_tasks.length === 2, `expected active_tasks.length: 2, got ${snapshot.active_tasks.length}`);
+    expect(snapshot.active_tasks.length === 3, `expected active_tasks.length: 3, got ${snapshot.active_tasks.length}`);
     expect(snapshot.archived_tasks.length === 2, `expected archived_tasks.length: 2, got ${snapshot.archived_tasks.length}`);
     expect(snapshot.active_loops.length === 1, `expected active_loops.length: 1 (only L1 is active), got ${snapshot.active_loops.length}`);
     expect(snapshot.backlog_entries.length === 3, `expected backlog_entries.length: 3 (em-dash + en-dash + hyphen), got ${snapshot.backlog_entries.length}`);
@@ -715,6 +747,20 @@ function validateStateProbeAgainstFixture() {
     if (t5) {
       expect(t5.awaiting === "user-approval", `expected T5.awaiting: "user-approval", got ${JSON.stringify(t5.awaiting)}`);
     }
+    // Epic-enrolled tasks must be routable and must not be invisible to the
+    // probe. Regression guard: the E<M>T<N>- folder form was skipped outright.
+    const t7 = snapshot.active_tasks.find((t) => t.id === "T7");
+    expect(t7 != null, `expected T7 (folder E1T7-epic-enrolled) in active_tasks — epic-enrolled tasks must be visible to routing`);
+    if (t7) {
+      expect(t7.category === "active", `expected T7.category: active, got ${JSON.stringify(t7.category)}`);
+      expect(t7.epic === "E1", `expected T7.epic: "E1", got ${JSON.stringify(t7.epic)}`);
+      expect(t7.path.includes("E1T7-"), `expected T7.path to keep the epic folder name, got ${JSON.stringify(t7.path)}`);
+    }
+    const t3NoEpic = snapshot.active_tasks.find((t) => t.id === "T3");
+    if (t3NoEpic) {
+      expect(t3NoEpic.epic === null, `expected T3.epic: null on an unenrolled task, got ${JSON.stringify(t3NoEpic.epic)}`);
+    }
+
     const t2 = snapshot.archived_tasks.find((t) => t.id === "T2");
     expect(t2 != null, `expected T2 in archived_tasks`);
     if (t2) {
@@ -775,6 +821,96 @@ function validateInstallHyperCopies() {
   }
 }
 
+// hyper-help restates facts that live in 25 other skill files, and nothing kept
+// them in sync: it advertised `/hyper-iterate` for the whole window between
+// upstream's rename and this check existing. Both assertions below are derived
+// from the tree rather than from a hand-maintained list, so a future rename
+// fails here instead of shipping a reference to a skill that does not exist.
+function validateHyperHelp() {
+  if (!ensureFile(HYPER_HELP_SKILL)) return;
+  const text = read(HYPER_HELP_SKILL);
+
+  // 1. Coverage — every user-invocable skill is documented somewhere.
+  for (const skill of [...USER_FACING_HYPER].sort()) {
+    if (!text.includes(`/${skill}`) && !text.includes(`\`${skill}\``)) {
+      fail(
+        `${relativeToRoot(HYPER_HELP_SKILL)}: user-facing skill ${JSON.stringify(skill)} is not documented (add it to the command reference, or drop it from USER_FACING_HYPER)`,
+      );
+    }
+  }
+
+  // 2. No phantom commands — every `/hyper*` it advertises resolves to a real
+  //    skill directory. This is what catches a rename: `/hyper-iterate` fails
+  //    the moment skills/hyper-iterate/ stops existing.
+  const advertised = new Set(
+    [...text.matchAll(/\/(hyper[a-z0-9-]*)/g)].map((m) => m[1]),
+  );
+  for (const cmd of [...advertised].sort()) {
+    if (!fs.existsSync(path.join(SKILLS_DIR, cmd))) {
+      fail(
+        `${relativeToRoot(HYPER_HELP_SKILL)}: advertises /${cmd}, but skills/${cmd}/ does not exist (stale command after a rename or removal?)`,
+      );
+    }
+    if (INTERNAL_HYPER.has(cmd)) {
+      fail(
+        `${relativeToRoot(HYPER_HELP_SKILL)}: advertises /${cmd}, which is an internal skill (user-invocable: false) and must not be offered as a command`,
+      );
+    }
+  }
+}
+
+// Loops written before the skill was rebuilt stay on disk in real projects and
+// are read in place via reference/legacy-loops.md. These assertions keep that
+// contract honest: the skill must point at it, and every retired section name
+// must still be mapped there. Dropping another section from the template without
+// mapping it silently breaks resume on existing loops.
+function validateLegacyLoopContract() {
+  if (!ensureFile(HYPER_LEGACY_LOOPS)) return;
+  const shim = read(HYPER_LEGACY_LOOPS);
+  const skill = read(HYPER_SKILL);
+  const template = read(HYPER_TEMPLATE);
+
+  if (!skill.includes("reference/legacy-loops.md")) {
+    fail(
+      `${relativeToRoot(HYPER_SKILL)}: does not reference reference/legacy-loops.md — legacy loops would be read against the current layout`,
+    );
+  }
+
+  // Sections observed in real pre-rewrite loop files. Each must either still be
+  // in the current template or be mapped in the shim.
+  const retired = [
+    "## Why",
+    "## Task understanding",
+    "## Existing code and findings",
+    "## Current route",
+    "## Current focus",
+    "## Current bar",
+    "## Bar history",
+    "## Part alignment",
+    "## Route shifts",
+  ];
+  for (const section of retired) {
+    if (template.includes(`${section}\n`)) continue; // came back into the template
+    if (!shim.includes(section)) {
+      fail(
+        `${relativeToRoot(HYPER_LEGACY_LOOPS)}: retired section ${JSON.stringify(section)} is not mapped — loops on disk still carry it`,
+      );
+    }
+  }
+
+  // The old three-line approval block must be translated, not re-gated.
+  for (const needle of ["Approval source:", "Approved at:", "Status: approved", "Status: awaiting approval"]) {
+    if (!shim.includes(needle)) {
+      fail(`${relativeToRoot(HYPER_LEGACY_LOOPS)}: missing gate translation for ${JSON.stringify(needle)}`);
+    }
+  }
+
+  // Legacy part statuses differ from the current set.
+  if (!shim.includes("todo | aligning | doing | done")) {
+    fail(`${relativeToRoot(HYPER_LEGACY_LOOPS)}: missing the legacy part-status vocabulary`);
+  }
+}
+
 function main() {
   validateSkillFiles();
   validateReadmeAndDataModel();
@@ -782,6 +918,8 @@ function main() {
   validateHyper();
   validatePlanConflictRedirect();
   validateGateMessaging();
+  validateHyperHelp();
+  validateLegacyLoopContract();
   validateInstallHyperCopies();
   validateStateProbe();
 

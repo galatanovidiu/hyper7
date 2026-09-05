@@ -55,7 +55,7 @@ Convert a backlog entry into a deferred task.
 5. Remove the backlog entry.
 6. Report: `Promoted B<N> -> T<M> — <title> (deferred).`
 
-Do not invoke `hyper` or start the intake phase yourself.
+Do not invoke `hyper-build` or start the intake phase yourself.
 
 ## Drop
 

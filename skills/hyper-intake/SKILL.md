@@ -25,7 +25,7 @@ reading or writing `.hyper/` paths. The data model is in
 
 - `01-intake.md`
 - `task.md` frontmatter updates to `scope` and `bugfix`
-- A verdict to `hyper`
+- A verdict to `hyper-build`
 
 ## Flow
 
@@ -51,7 +51,7 @@ reading or writing `.hyper/` paths. The data model is in
 - Prefer `feature` when in doubt.
 - `feature` covers both user-facing features and large internal refactors.
 - `quick` is still tracked work; if the task should not be tracked at all, that
-  decision belongs to `hyper` top-level triage before this phase begins.
+  decision belongs to `hyper-build` top-level triage before this phase begins.
 - `bugfix: true` changes the downstream lane but not the `scope`.
 
 ## Writing `01-intake.md`

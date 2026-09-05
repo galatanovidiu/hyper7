@@ -27,7 +27,7 @@ reading or writing `.hyper/` paths. The data model is in
 ## Outputs
 
 - `03-technical-plan.md`
-- A verdict to `hyper`
+- A verdict to `hyper-build`
 
 ## Flow
 
@@ -44,7 +44,7 @@ reading or writing `.hyper/` paths. The data model is in
       written:
       - If `03-technical-plan.md` already contains a `## Invalidated
         subtasks` section (the revision was written on a prior dispatch;
-        this dispatch is the post-approval re-dispatch — `hyper` always
+        this dispatch is the post-approval re-dispatch — `hyper-build` always
         clears `awaiting` before re-dispatching a phase skill), jump to
         step 2g.
       - Otherwise (revision not yet written), continue to step 2.
